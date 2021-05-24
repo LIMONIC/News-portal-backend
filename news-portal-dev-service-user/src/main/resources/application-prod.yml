@@ -7,3 +7,6 @@ spring:
     port: 6379
     password: zty1993redis
 
+# Set domain. This domain can be obtained in Java code.
+website:
+  domain-name: inews.com
