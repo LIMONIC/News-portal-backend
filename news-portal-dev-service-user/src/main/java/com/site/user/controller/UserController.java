@@ -10,6 +10,7 @@ import com.site.pojo.bo.UpdateUserInfoBO;
 import com.site.pojo.vo.AppUserVO;
 import com.site.pojo.vo.UserAccountInfoVO;
 import com.site.user.service.UserService;
+import com.site.utils.JsonUtils;
 import com.site.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,8 +65,18 @@ public class UserController extends BaseController implements UserControllerApi 
     }
 
     private AppUser getUser(String userId) {
-        // this method will be used by other code and will be extended.
-        AppUser user = userService.getUser(userId);
+        // Check if Redis includes user info, if true, return. (skip database query)
+        String userJson = redis.get(REDIS_USER_INFO + ":" + userId);
+        AppUser user = null;
+        if (StringUtils.isNotBlank(userJson)) {
+            user = JsonUtils.jsonToPojo(userJson, AppUser.class);
+        } else {
+            user = userService.getUser(userId);
+            // Since user info will not be changed too often, for website with large access, we need to avoid accessing
+            // database each time. Instead, we save those info(info after the first query) into Redis.
+            redis.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(user));
+        }
+
         return user;
     }
 

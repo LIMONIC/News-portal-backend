@@ -27,4 +27,9 @@ public interface PassportControllerApi {
     // @RequestBody means the JSON passed from front end is match with the Object here
     public GraceJSONResult doLogin(@RequestBody @Valid RegisterLoginBO registerLoginBO, BindingResult result,
                                    HttpServletRequest request, HttpServletResponse response);
+
+    @ApiOperation(value = "User logout API", notes = "User logout API", httpMethod = "POST")
+    @PostMapping("/logout")
+    public GraceJSONResult logout(@RequestParam String userId,
+                                   HttpServletRequest request, HttpServletResponse response);
 }

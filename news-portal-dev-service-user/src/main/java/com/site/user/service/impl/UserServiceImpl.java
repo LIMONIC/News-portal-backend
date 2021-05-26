@@ -10,6 +10,8 @@ import com.site.user.mapper.AppUserMapper;
 import com.site.user.service.UserService;
 import com.site.utils.DateUtil;
 import com.site.utils.DesensitizationUtil;
+import com.site.utils.JsonUtils;
+import com.site.utils.RedisOperator;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     public Sid sid;
+
+    @Autowired
+    public RedisOperator redis;
+    public static final String REDIS_USER_INFO = "redis_user_info";
 
     @Override
     public AppUser queryMobileIsExist(String mobile) {
@@ -81,6 +87,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserInfo(UpdateUserInfoBO updateUserInfoBO) {
 
+        String userId = updateUserInfoBO.getId();
+
+        // Make sure data in database and Redis is same.
+        // Delete data in Redis first, then update database
+        redis.del(REDIS_USER_INFO + ":" + userId);
+
         AppUser userInfo = new AppUser();
         BeanUtils.copyProperties(updateUserInfoBO, userInfo);
 
@@ -91,5 +103,19 @@ public class UserServiceImpl implements UserService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.USER_UPDATE_ERROR);
         }
+
+        // check user info again. Put the info into Redis
+        AppUser user = getUser(userId);
+        redis.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(user));
+
+        // Cache and delete twice
+        try {
+            Thread.sleep(200);
+            redis.del(REDIS_USER_INFO + ":" + userId);
+            redis.set(REDIS_USER_INFO + ":" + userId, JsonUtils.objectToJson(user), 7);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }

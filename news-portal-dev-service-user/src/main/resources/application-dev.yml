@@ -8,6 +8,11 @@ spring:
     port: 6379
     password: zty1993redis
 
+# dev mybatis logs
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 # Set domain. This domain can be obtained in Java code.
 website:
   domain-name: inews.com

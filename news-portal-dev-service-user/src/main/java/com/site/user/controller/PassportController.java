@@ -9,6 +9,7 @@ import com.site.pojo.AppUser;
 import com.site.pojo.bo.RegisterLoginBO;
 import com.site.user.service.UserService;
 import com.site.utils.IPUtil;
+import com.site.utils.JsonUtils;
 import com.site.utils.SMSUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -88,6 +89,7 @@ public class PassportController extends BaseController implements PassportContro
             // Save token to Redis
             String uToken = UUID.randomUUID().toString();
             redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);
+            redis.set(REDIS_USER_INFO + ":" + user.getId(), JsonUtils.objectToJson(user));
 
             // Save user id and token to cookie
             setCookie(request, response, "utoken", uToken, COOKIE_MONTH);
@@ -102,5 +104,14 @@ public class PassportController extends BaseController implements PassportContro
         return GraceJSONResult.ok(userActiveStatus);
     }
 
+    @Override
+    public GraceJSONResult logout(String userId, HttpServletRequest request, HttpServletResponse response) {
 
+        redis.del(REDIS_USER_TOKEN + ":" + userId);
+
+        setCookie(request, response, "utoken", "", COOKIE_DELETE);
+        setCookie(request, response, "uid", "", COOKIE_DELETE);
+
+        return GraceJSONResult.ok();
+    }
 }
