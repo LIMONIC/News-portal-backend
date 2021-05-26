@@ -9,6 +9,7 @@
         <module name="news-portal-dev-common" />
         <module name="mybatis-generator-database" />
         <module name="news-portal-dev-service-api" />
+        <module name="news-portal-dev-service-files" />
         <module name="news-portal-dev-service-user" />
         <module name="news-portal-dev-model" />
       </profile>
@@ -19,6 +20,7 @@
       <module name="news-portal-dev-common" options="-parameters" />
       <module name="news-portal-dev-model" options="-parameters" />
       <module name="news-portal-dev-service-api" options="-parameters" />
+      <module name="news-portal-dev-service-files" options="-parameters" />
       <module name="news-portal-dev-service-user" options="-parameters" />
     </option>
   </component>
