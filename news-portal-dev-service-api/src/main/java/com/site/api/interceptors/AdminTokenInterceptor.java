@@ -1,30 +1,27 @@
 package com.site.api.interceptors;
 
-import com.site.exception.GraceException;
-import com.site.grace.result.ResponseStatusEnum;
-import com.site.utils.IPUtil;
-import com.site.utils.RedisOperator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class UserTokenInterceptor extends BaseInterceptor implements HandlerInterceptor {
+import static com.site.api.BaseController.REDIS_ADMIN_TOKEN;
+
+public class AdminTokenInterceptor extends BaseInterceptor implements HandlerInterceptor {
 
     /*
-    * Interception request; before visit controller
-    * */
+     * Interception request; before visit controller
+     * */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         // Here we use header by considering app w/o cookie
-        String userId = request.getHeader("headerUserId");
-        String userToken = request.getHeader("headerUserToken");
+        String adminUserId = request.getHeader("adminUserId");
+        String adminUserToken = request.getHeader("adminUserToken");
 
         // Decide if request can be passed
-        boolean run = verifyUserIdToken(userId, userToken, REDIS_USER_TOKEN);
+        boolean run = verifyUserIdToken(adminUserId, adminUserToken, REDIS_ADMIN_TOKEN);
         return run;
     }
 

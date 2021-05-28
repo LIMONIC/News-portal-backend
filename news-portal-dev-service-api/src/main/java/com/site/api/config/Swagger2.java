@@ -33,7 +33,7 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)  // 指定api类型为swagger2
                 .apiInfo(apiInfo())                 // 用于定义api文档汇总信息
                 .select()
-                .apis(Predicates.or(userPredicate))
+                .apis(Predicates.or(userPredicate, adminPredicate, filesPredicate))
                 .paths(PathSelectors.any())         // 所有controller
                 .build();
     }

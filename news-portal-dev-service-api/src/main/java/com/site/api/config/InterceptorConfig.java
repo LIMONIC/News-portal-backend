@@ -1,6 +1,7 @@
 package com.site.api.config;
 
 import com.site.api.controller.user.PassportControllerApi;
+import com.site.api.interceptors.AdminTokenInterceptor;
 import com.site.api.interceptors.PassportInterceptor;
 import com.site.api.interceptors.UserActiveInterceptor;
 import com.site.api.interceptors.UserTokenInterceptor;
@@ -23,6 +24,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    public AdminTokenInterceptor adminTokenInterceptor() {
+        return new AdminTokenInterceptor();
+    }
+
+    @Bean
     public UserActiveInterceptor userActiveInterceptor() {
         return new UserActiveInterceptor();
     }
@@ -37,9 +43,20 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/updateUserInfo")
                 .addPathPatterns("/fs/uploadFace");
 
-//        registry.addInterceptor(userActiveInterceptor())
-//                .addPathPatterns("/user/getAccountInfo");
+        registry.addInterceptor(adminTokenInterceptor())
+                .addPathPatterns("/adminMng/adminIsExist")
+                .addPathPatterns("/adminMng/addNewAdmin")
+                .addPathPatterns("/adminMng/getAdminList")
+                .addPathPatterns("/fs/uploadToGridFS")
+                .addPathPatterns("/fs/readInGridFS")
+                .addPathPatterns("/friendLinkMng/saveOrUpdateFriendLink")
+                .addPathPatterns("/friendLinkMng/getFriendLinkList")
+                .addPathPatterns("/friendLinkMng/delete")
+                .addPathPatterns("/categoryMng/saveOrUpdateCategory")
+                .addPathPatterns("/categoryMng/getCatList");
 
+//        registry.addInterceptor(articleReadInterceptor())
+//                .addPathPatterns("/portal/article/readArticle");
 
 
     }
