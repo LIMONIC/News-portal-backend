@@ -48,7 +48,7 @@ public class PassportController extends BaseController implements PassportContro
 
         // Generate random verification code and send SMS
         String random = (int)((Math.random() * 9 + 1) * 100000) + "";
-        smsUtils.sendSMS("18903423733", random);
+        //smsUtils.sendSMS("18903423733", random);
 
         // Store the verification code into redis for verification
         redis.set(MOBILE_SMSCODE + ":" + mobile, random, 30 * 60); // 30 min for timeout

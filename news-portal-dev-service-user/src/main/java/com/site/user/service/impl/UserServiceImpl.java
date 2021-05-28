@@ -32,7 +32,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     public RedisOperator redis;
+
     public static final String REDIS_USER_INFO = "redis_user_info";
+
+    private static final String USER_FACE0 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAIlFXAAAcIhVPdSg994.png";
+    private static final String USER_FACE1 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUySASMbOAABBAXhjY0Y649.png";
+    private static final String USER_FACE2 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUx6ANoEMAABTntpyjOo395.png";
 
     @Override
     public AppUser queryMobileIsExist(String mobile) {
@@ -44,10 +49,6 @@ public class UserServiceImpl implements UserService {
 
         return user;
     }
-
-    private static final String USER_FACE0 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAIlFXAAAcIhVPdSg994.png";
-    private static final String USER_FACE1 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUySASMbOAABBAXhjY0Y649.png";
-    private static final String USER_FACE2 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUx6ANoEMAABTntpyjOo395.png";
 
     @Transactional // 事务
     @Override

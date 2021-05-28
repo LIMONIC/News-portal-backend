@@ -7,10 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="news-portal-dev-common" />
-        <module name="mybatis-generator-database" />
         <module name="news-portal-dev-service-api" />
-        <module name="news-portal-dev-service-files" />
         <module name="news-portal-dev-service-user" />
+        <module name="mybatis-generator-database" />
+        <module name="news-portal-dev-service-files" />
+        <module name="news-portal-dev-service-admin" />
         <module name="news-portal-dev-model" />
       </profile>
     </annotationProcessing>
@@ -19,6 +20,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="news-portal-dev-common" options="-parameters" />
       <module name="news-portal-dev-model" options="-parameters" />
+      <module name="news-portal-dev-service-admin" options="-parameters" />
       <module name="news-portal-dev-service-api" options="-parameters" />
       <module name="news-portal-dev-service-files" options="-parameters" />
       <module name="news-portal-dev-service-user" options="-parameters" />

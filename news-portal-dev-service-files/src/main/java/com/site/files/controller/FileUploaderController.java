@@ -1,7 +1,7 @@
 package com.site.files.controller;
 
 import com.site.api.controller.files.FileUploaderControllerApi;
-import com.site.api.controller.user.HelloControllerApi;
+import com.site.files.resource.FileResource;
 import com.site.files.service.UploaderService;
 import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
@@ -19,6 +19,9 @@ public class FileUploaderController implements FileUploaderControllerApi {
 
     @Autowired
     private UploaderService uploaderService;
+
+    @Autowired
+    private FileResource fileResource;
 
     @Override
     public GraceJSONResult uploadFace(String userId, MultipartFile file) throws Exception {
@@ -52,10 +55,17 @@ public class FileUploaderController implements FileUploaderControllerApi {
             }
 
         } else {
-            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_NULL_ERROR);
         }
 
         logger.info("path = " + path);
-        return GraceJSONResult.ok(path);
+
+        String finalPath = null;
+        if (StringUtils.isNotBlank(path)) {
+            finalPath = fileResource.getHost() + path;
+        } else {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+        return GraceJSONResult.ok(finalPath);
     }
 }
