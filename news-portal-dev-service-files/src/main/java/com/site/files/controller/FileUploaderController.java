@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 
@@ -27,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+
+import static com.site.utils.FileUtils.fileToBase64;
 
 @RestController
 public class FileUploaderController implements FileUploaderControllerApi {
@@ -127,7 +130,7 @@ public class FileUploaderController implements FileUploaderControllerApi {
 
     private File readGridFSByFaceId(String faceId) throws Exception{
 
-        GridFSFindIterable gridFSFiles = gridFSBucket.find(Filters.eq("_id", faceId));
+        GridFSFindIterable gridFSFiles = gridFSBucket.find(Filters.eq("_id", new ObjectId(faceId)));
         GridFSFile gridFS = gridFSFiles.first();
         if (gridFS == null) {
             GraceException.display(ResponseStatusEnum.FILE_NOT_EXIST_ERROR);
@@ -138,12 +141,12 @@ public class FileUploaderController implements FileUploaderControllerApi {
         System.out.println(fileName);
 
         // Obtain file stream, save file to temporary directory in server
-        File fileTemp = new File("workspace/temp_face");
+        File fileTemp = new File("/workspace/temp_face");
         if (!fileTemp.exists()) {
             fileTemp.mkdirs();
         }
 
-        File myFile = new File("workspace/temp_face/" + fileName);
+        File myFile = new File("/workspace/temp_face/" + fileName);
 
         // Creat file output stream
         OutputStream os = new FileOutputStream(myFile);
@@ -152,5 +155,19 @@ public class FileUploaderController implements FileUploaderControllerApi {
         gridFSBucket.downloadToStream(new ObjectId(faceId), os);
 
         return myFile;
+    }
+
+    @Override
+    public GraceJSONResult readFace64InGridFS(String faceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        // faceId empty check is performed in AdminMngController
+
+        // 0. Obtain the stored face image from gridFS
+        File myFace = readGridFSByFaceId(faceId);
+
+        // 1. convert the image to BASE64
+        String base64Face = FileUtils.fileToBase64(myFace);
+
+        return GraceJSONResult.ok(base64Face);
     }
 }

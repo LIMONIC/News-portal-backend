@@ -89,6 +89,15 @@
             <artifactId>joda-time</artifactId>
         </dependency>
 
+        <!-- 第三方云厂商相关的依赖 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+
+
+
     </dependencies>
 
     <properties>

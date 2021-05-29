@@ -36,4 +36,8 @@ public interface AdminMngControllerApi {
     @PostMapping("/adminLogout") // route of the method
     public Object adminLogout(@RequestParam String adminId, HttpServletRequest request, HttpServletResponse response);
 
+    @ApiOperation(value = "Admin faceId login", notes = "Admin faceId login", httpMethod = "POST")
+    @PostMapping("/adminFaceLogin") // route of the method
+    public Object adminFaceLogin(@RequestBody AdminLoginBO adminLoginBO, HttpServletRequest request, HttpServletResponse response);
+
 }

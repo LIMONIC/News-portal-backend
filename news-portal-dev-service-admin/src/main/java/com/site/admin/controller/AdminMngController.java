@@ -2,12 +2,14 @@ package com.site.admin.controller;
 
 import com.site.admin.service.AdminUserService;
 import com.site.api.controller.admin.AdminMngControllerApi;
+import com.site.enums.FaceVerifyType;
 import com.site.exception.GraceException;
 import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.AdminUser;
 import com.site.pojo.bo.AdminLoginBO;
 import com.site.pojo.bo.NewAdminBO;
+import com.site.utils.FaceVerifyUtils;
 import com.site.utils.PagedGridResult;
 import com.site.utils.RedisOperator;
 import com.site.api.BaseController;
@@ -15,8 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +38,12 @@ public class AdminMngController extends BaseController implements AdminMngContro
 
     @Autowired
     private AdminUserService adminUserService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private FaceVerifyUtils faceVerifyUtils;
 
     @Override
     public GraceJSONResult adminLogin(AdminLoginBO adminLoginBO, HttpServletRequest request, HttpServletResponse response) {
@@ -161,6 +171,46 @@ public class AdminMngController extends BaseController implements AdminMngContro
         deleteCookie(request, response, "atoken");
         deleteCookie(request, response, "aid");
         deleteCookie(request, response, "aname");
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public Object adminFaceLogin(AdminLoginBO adminLoginBO, HttpServletRequest request, HttpServletResponse response) {
+
+        // 0. Check if username and faceId is empty
+        if (StringUtils.isBlank(adminLoginBO.getUsername())) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_USERNAME_NULL_ERROR);
+        }
+        String tempFace64 = adminLoginBO.getImg64();
+        if (StringUtils.isBlank(tempFace64)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_NULL_ERROR);
+        }
+
+        // 1. Obtain faceId form mongoDB gridFS
+        AdminUser admin = adminUserService.queryAdminByUsername(adminLoginBO.getUsername());
+        String adminFaceId = admin.getFaceId();
+
+        if (StringUtils.isBlank(adminFaceId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_LOGIN_ERROR);
+        }
+
+        // 2. Request file service, obtain the base64 of stored face
+        // Call file service here
+        // Restful API
+        String fileServerUrlExecute = "http://files.inews.com:8004/fs/readFace64InGridFS?faceId=" + adminFaceId;
+        ResponseEntity<GraceJSONResult> responseEntity = restTemplate.getForEntity(fileServerUrlExecute, GraceJSONResult.class);
+        GraceJSONResult bodyResult = responseEntity.getBody();
+        String base64DB = (String)bodyResult.getData();
+
+        // 3. Call face recognition / compare API to get confidence level of the two faces
+        boolean result = faceVerifyUtils.faceVerify(FaceVerifyType.BASE64.type, tempFace64, base64DB, 90);
+        if (!result) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ADMIN_FACE_LOGIN_ERROR);
+        }
+
+        // 4. Set redis and cookie after login succeed
+        doLoginSettings(admin, request, response);
+
         return GraceJSONResult.ok();
     }
 }

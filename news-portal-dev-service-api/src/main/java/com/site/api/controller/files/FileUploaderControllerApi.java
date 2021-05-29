@@ -34,4 +34,16 @@ public interface FileUploaderControllerApi {
      */
     @GetMapping("/readInGridFS") // route of the method
     public void readInGridFS(String faceId, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    /**
+     * Obtain faceId from gridFS and return BASE64
+     * @param faceId
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/readFace64InGridFS") // route of the method
+    public GraceJSONResult readFace64InGridFS(String faceId, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
 }
