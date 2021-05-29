@@ -25,6 +25,7 @@
             <artifactId>fastdfs-client</artifactId>
         </dependency>
 
+
     </dependencies>
 
     <properties>

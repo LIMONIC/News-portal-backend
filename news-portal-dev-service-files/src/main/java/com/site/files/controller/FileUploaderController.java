@@ -1,16 +1,32 @@
 package com.site.files.controller;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.client.model.Filters;
 import com.site.api.controller.files.FileUploaderControllerApi;
+import com.site.exception.GraceException;
 import com.site.files.resource.FileResource;
 import com.site.files.service.UploaderService;
 import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
+import com.site.pojo.bo.NewAdminBO;
+import com.site.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 @RestController
 public class FileUploaderController implements FileUploaderControllerApi {
@@ -22,6 +38,9 @@ public class FileUploaderController implements FileUploaderControllerApi {
 
     @Autowired
     private FileResource fileResource;
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
 
     @Override
     public GraceJSONResult uploadFace(String userId, MultipartFile file) throws Exception {
@@ -67,5 +86,71 @@ public class FileUploaderController implements FileUploaderControllerApi {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
         return GraceJSONResult.ok(finalPath);
+    }
+
+    @Override
+    public GraceJSONResult uploadToGridFS(NewAdminBO newAdminBO) throws Exception {
+
+        // Obtain the base64 string of image
+        String file64 = newAdminBO.getImg64();
+
+        // Convert bse64 string to byte array
+        byte[] bytes = new BASE64Decoder().decodeBuffer(file64.trim());
+
+        // Convert to input stream
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+
+        // Upload to gridFS
+        ObjectId fileId = gridFSBucket.uploadFromStream(newAdminBO.getUsername() + ".png", inputStream);
+
+        // Obtain the file' key in gridFS
+        String fileIdStr = fileId.toString();
+
+        return GraceJSONResult.ok(fileIdStr);
+    }
+
+    @Override
+    public void readInGridFS(String faceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        // 0. check parameter
+        if (StringUtils.isBlank(faceId) || faceId.equalsIgnoreCase("null")) {
+            GraceException.display(ResponseStatusEnum.FILE_NOT_EXIST_ERROR);
+        }
+
+        // 1. Obtain file from gridFS
+        File adminFace = readGridFSByFaceId(faceId);
+
+        // 2. Output faceId to front end
+        FileUtils.downloadFileByStream(response, adminFace);
+
+    }
+
+    private File readGridFSByFaceId(String faceId) throws Exception{
+
+        GridFSFindIterable gridFSFiles = gridFSBucket.find(Filters.eq("_id", faceId));
+        GridFSFile gridFS = gridFSFiles.first();
+        if (gridFS == null) {
+            GraceException.display(ResponseStatusEnum.FILE_NOT_EXIST_ERROR);
+        }
+
+
+        String fileName = gridFS.getFilename();
+        System.out.println(fileName);
+
+        // Obtain file stream, save file to temporary directory in server
+        File fileTemp = new File("workspace/temp_face");
+        if (!fileTemp.exists()) {
+            fileTemp.mkdirs();
+        }
+
+        File myFile = new File("workspace/temp_face/" + fileName);
+
+        // Creat file output stream
+        OutputStream os = new FileOutputStream(myFile);
+
+        // download to server
+        gridFSBucket.downloadToStream(new ObjectId(faceId), os);
+
+        return myFile;
     }
 }
