@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import tk.mybatis.spring.annotation.MapperScan;
 
-@SpringBootApplication(exclude = MongoAutoConfiguration.class)
+@SpringBootApplication//(exclude = MongoAutoConfiguration.class)
 @MapperScan(basePackages = "com.site.admin.mapper")
 @ComponentScan(basePackages = {"com.site", "org.n3r.idworker"})
 public class Application {
