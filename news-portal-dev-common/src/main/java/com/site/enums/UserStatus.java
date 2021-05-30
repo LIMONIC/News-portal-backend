@@ -11,7 +11,7 @@ public enum UserStatus {
 //    2：Blocked。
 
 
-    INACTIVE(0, "Unactivated"),
+    INACTIVE(0, "Inactivated"),
     ACTIVE(1, "Activated"),
     FROZEN(2, "Blocked");
 

@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.site.admin.mapper.AdminUserMapper;
 import com.site.admin.service.AdminUserService;
+import com.site.api.service.BaseService;
 import com.site.exception.GraceException;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.AdminUser;
@@ -21,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class AdminUserServiceImpl implements AdminUserService {
+public class AdminUserServiceImpl extends BaseService implements AdminUserService {
 
     @Autowired
     public AdminUserMapper adminUserMapper;
@@ -81,15 +82,15 @@ public class AdminUserServiceImpl implements AdminUserService {
         return setterPagedGrid(adminUserList, page);
     }
 
-    private PagedGridResult setterPagedGrid(List<?> adminUserList, Integer page) {
-
-        PageInfo<?> pageList = new PageInfo<>(adminUserList);
-        PagedGridResult gridResult = new PagedGridResult();
-        gridResult.setRows(adminUserList);
-        gridResult.setPage(page);
-        gridResult.setRecords(pageList.getPages()); // No. of pages
-        gridResult.setTotal(pageList.getTotal()); // No. of total record
-
-        return gridResult;
-    }
+//    private PagedGridResult setterPagedGrid(List<?> adminUserList, Integer page) {
+//
+//        PageInfo<?> pageList = new PageInfo<>(adminUserList);
+//        PagedGridResult gridResult = new PagedGridResult();
+//        gridResult.setRows(adminUserList);
+//        gridResult.setPage(page);
+//        gridResult.setRecords(pageList.getPages()); // No. of pages
+//        gridResult.setTotal(pageList.getTotal()); // No. of total record
+//
+//        return gridResult;
+//    }
 }
