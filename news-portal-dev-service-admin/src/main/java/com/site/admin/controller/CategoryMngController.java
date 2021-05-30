@@ -32,7 +32,7 @@ public class CategoryMngController extends BaseController implements CategoryMng
     public GraceJSONResult saveOrUpdateCategory(@Valid SaveCategoryBO saveCategoryBO,
                                                 BindingResult result) {
 
-        // 判断BindingResult是否保存错误的验证信息，如果有，则直接return
+        // Validate BindingResult, if false, return
         if (result.hasErrors()) {
             Map<String, String> errorMap = getErrors(result);
             return GraceJSONResult.errorMap(errorMap);
@@ -72,7 +72,7 @@ public class CategoryMngController extends BaseController implements CategoryMng
 
     @Override
     public GraceJSONResult getCats() {
-        // 先从redis中查询，如果有，则返回，如果没有，则查询数据库库后先放缓存，放返回
+        // Query data from Redis. If found, return the data; if not found, search database and save to redis then return
         String allCatJson = redis.get(REDIS_ALL_CATEGORY);
 
         List<Category> categoryList = null;

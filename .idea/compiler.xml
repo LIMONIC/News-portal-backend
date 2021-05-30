@@ -9,6 +9,7 @@
         <module name="news-portal-dev-common" />
         <module name="news-portal-dev-service-api" />
         <module name="news-portal-dev-service-user" />
+        <module name="news-portal-dev-article" />
         <module name="mybatis-generator-database" />
         <module name="news-portal-dev-service-files" />
         <module name="news-portal-dev-service-admin" />
@@ -18,6 +19,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="news-portal-dev-article" options="-parameters" />
       <module name="news-portal-dev-common" options="-parameters" />
       <module name="news-portal-dev-model" options="-parameters" />
       <module name="news-portal-dev-service-admin" options="-parameters" />

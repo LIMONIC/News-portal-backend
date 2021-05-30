@@ -13,9 +13,22 @@ import javax.servlet.http.HttpServletResponse;
 @Api(value = "Controller for file upload", tags = {"Controller for file upload"})
 @RequestMapping("fs")
 public interface FileUploaderControllerApi {
-    @ApiOperation(value = "API for uploading user profile", notes = "API for uploading user profile", httpMethod = "POST")
+    /**
+     * API for uploading user profile (single file upload)
+     */
     @PostMapping("/uploadFace") // route of the method
     public GraceJSONResult uploadFace(@RequestParam String userId, MultipartFile file) throws Exception;
+
+    /**
+     * Upload multiple files
+     * @param userId
+     * @param files
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "API for uploading user profile", notes = "API for uploading user profile", httpMethod = "POST")
+    @PostMapping("/uploadSomeFiles") // route of the method
+    public GraceJSONResult uploadSomeFiles(@RequestParam String userId, MultipartFile[] files) throws Exception;
 
     /**
      * Upload to the gridFs in MongoDB

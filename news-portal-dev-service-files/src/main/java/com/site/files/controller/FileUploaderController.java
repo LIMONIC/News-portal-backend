@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.site.utils.FileUtils.fileToBase64;
 
@@ -48,7 +50,7 @@ public class FileUploaderController implements FileUploaderControllerApi {
     @Override
     public GraceJSONResult uploadFace(String userId, MultipartFile file) throws Exception {
 
-        String path = null;
+        String path = "";
         if (StringUtils.isBlank(userId)) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.UN_LOGIN);
         }
@@ -89,6 +91,59 @@ public class FileUploaderController implements FileUploaderControllerApi {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
         return GraceJSONResult.ok(finalPath);
+    }
+
+    @Override
+    public GraceJSONResult uploadSomeFiles(String userId, MultipartFile[] files) throws Exception {
+
+        // Create a list for storing the url address of multiple files and return to front end
+        List<String> imageUrlList = new ArrayList<>();
+        if (files != null && files.length > 0) {
+            for (MultipartFile file : files) {
+                String path = "";
+                if (StringUtils.isBlank(userId)) {
+                    return GraceJSONResult.errorCustom(ResponseStatusEnum.UN_LOGIN);
+                }
+
+                if (file != null) {
+                    // Obtain file name
+                    String fileName = file.getOriginalFilename();
+
+                    // Check file name is empty
+                    if (StringUtils.isNotBlank(fileName)) {
+                        // Get file suffix
+                        String fileNameArr[] = fileName.split("\\.");
+                        String suffix = fileNameArr[fileNameArr.length - 1];
+                        // Filter out illegal suffix
+                        if (!suffix.equalsIgnoreCase("png") &&
+                                !suffix.equalsIgnoreCase("jpg") &&
+                                !suffix.equalsIgnoreCase("jpeg") ) {
+                            continue;
+                        }
+                        // Perform file upload
+                        path = uploaderService.uploadFdfs(file, suffix);
+
+
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+
+                logger.info("path = " + path);
+
+                String finalPath = "";
+                if (StringUtils.isNotBlank(path)) {
+                    finalPath = fileResource.getHost() + path;
+                    // FIXME:Before add the final path to imageUrlList, we need to check the image content
+                    imageUrlList.add(finalPath);
+                } else {
+                    continue;
+                }
+            }
+        }
+        return GraceJSONResult.ok(imageUrlList);
     }
 
     @Override
@@ -170,4 +225,6 @@ public class FileUploaderController implements FileUploaderControllerApi {
 
         return GraceJSONResult.ok(base64Face);
     }
+
+
 }
