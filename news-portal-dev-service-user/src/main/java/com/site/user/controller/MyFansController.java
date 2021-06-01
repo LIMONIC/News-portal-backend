@@ -5,9 +5,8 @@ import com.site.api.controller.user.HelloControllerApi;
 import com.site.api.controller.user.MyFansControllerApi;
 import com.site.enums.Sex;
 import com.site.grace.result.GraceJSONResult;
-//import com.site.pojo.vo.FansCountsVO;
-//import com.site.user.service.MyFanService;
 import com.site.grace.result.ResponseStatusEnum;
+import com.site.pojo.vo.FansCountsVO;
 import com.site.user.service.MyFanService;
 import com.site.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
@@ -68,23 +67,23 @@ public class MyFansController extends BaseController implements MyFansController
                                     page,
                                     pageSize));
     }
-//
-//    @Override
-//    public GraceJSONResult queryRatio(String writerId) {
-//
-//        int manCounts = myFanService.queryFansCounts(writerId, Sex.man);
-//        int womanCounts = myFanService.queryFansCounts(writerId, Sex.woman);
-//
-//        FansCountsVO fansCountsVO = new FansCountsVO();
-//        fansCountsVO.setManCounts(manCounts);
-//        fansCountsVO.setWomanCounts(womanCounts);
-//
-//        return GraceJSONResult.ok(fansCountsVO);
-//    }
-//
-//    @Override
-//    public GraceJSONResult queryRatioByRegion(String writerId) {
-//        return GraceJSONResult.ok(myFanService
-//                .queryRegionRatioCounts(writerId));
-//    }
+
+    @Override
+    public GraceJSONResult queryRatio(String writerId) {
+
+        int manCounts = myFanService.queryFansCounts(writerId, Sex.man);
+        int womanCounts = myFanService.queryFansCounts(writerId, Sex.woman);
+
+        FansCountsVO fansCountsVO = new FansCountsVO();
+        fansCountsVO.setManCounts(manCounts);
+        fansCountsVO.setWomanCounts(womanCounts);
+
+        return GraceJSONResult.ok(fansCountsVO);
+    }
+
+    @Override
+    public GraceJSONResult queryRatioByRegion(String writerId) {
+        return GraceJSONResult.ok(myFanService
+                .queryRegionRatioCounts(writerId));
+    }
 }

@@ -1,7 +1,7 @@
 package com.site.user.service;
 
 import com.site.enums.Sex;
-//import com.site.pojo.vo.RegionRatioVO;
+import com.site.pojo.vo.RegionRatioVO;
 import com.site.utils.PagedGridResult;
 
 import java.util.List;
@@ -30,14 +30,14 @@ public interface MyFanService {
     public PagedGridResult queryMyFansList(String writerId,
                                            Integer page,
                                            Integer pageSize);
-//
-//    /**
-//     * 查询粉丝数
-//     */
-//    public Integer queryFansCounts(String writerId, Sex sex);
-//
-//    /**
-//     * 查询粉丝数
-//     */
-//    public List<RegionRatioVO> queryRegionRatioCounts(String writerId);
+
+    /**
+     * get fans number by gender
+     */
+    public Integer queryFansCounts(String writerId, Sex sex);
+
+    /**
+     * get fans number by region
+     */
+    public List<RegionRatioVO> queryRegionRatioCounts(String writerId);
 }

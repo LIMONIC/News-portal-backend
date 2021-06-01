@@ -37,12 +37,12 @@ public interface MyFansControllerApi {
             @RequestParam Integer page,
             @ApiParam(name = "pageSize", value = "Items on each pages", required = false)
             @RequestParam Integer pageSize);
-//
-//    @ApiOperation(value = "查询男女粉丝数量", notes = "查询男女粉丝数量", httpMethod = "POST")
-//    @PostMapping("/queryRatio")
-//    public GraceJSONResult queryRatio(@RequestParam String writerId);
-//
-//    @ApiOperation(value = "根据地域查询粉丝数量", notes = "根据地域查询粉丝数量", httpMethod = "POST")
-//    @PostMapping("/queryRatioByRegion")
-//    public GraceJSONResult queryRatioByRegion(@RequestParam String writerId);
+
+    @ApiOperation(value = "Get fans number by gender", notes = "Get fans number by gender", httpMethod = "POST")
+    @PostMapping("/queryRatio")
+    public GraceJSONResult queryRatio(@RequestParam String writerId);
+
+    @ApiOperation(value = "Get fans number by region", notes = "Get fans number by region", httpMethod = "POST")
+    @PostMapping("/queryRatioByRegion")
+    public GraceJSONResult queryRatioByRegion(@RequestParam String writerId);
 }
