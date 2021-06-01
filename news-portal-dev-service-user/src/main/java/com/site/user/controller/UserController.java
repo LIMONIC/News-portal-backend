@@ -47,6 +47,11 @@ public class UserController extends BaseController implements UserControllerApi 
         AppUserVO userVO = new AppUserVO();
         BeanUtils.copyProperties(user, userVO);
 
+        // 3. Query redis for user's following number and fans number.
+        // Put the info to userVO for front end to render
+        userVO.setMyFansCounts(getCountsFromRedis(REDIS_WRITER_FANS_COUNTS + ":" + userId));
+        userVO.setMyFollowCounts(getCountsFromRedis(REDIS_MY_FOLLOW_COUNTS + ":" + userId));
+
         return GraceJSONResult.ok(userVO);
     }
 

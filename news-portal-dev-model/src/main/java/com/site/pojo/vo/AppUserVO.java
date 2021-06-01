@@ -6,6 +6,25 @@ public class AppUserVO {
     private String face;
     private Integer activeStatus;
 
+    private Integer myFollowCounts;
+    private Integer myFansCounts;
+
+    public Integer getMyFollowCounts() {
+        return myFollowCounts;
+    }
+
+    public void setMyFollowCounts(Integer myFollowCounts) {
+        this.myFollowCounts = myFollowCounts;
+    }
+
+    public Integer getMyFansCounts() {
+        return myFansCounts;
+    }
+
+    public void setMyFansCounts(Integer myFansCounts) {
+        this.myFansCounts = myFansCounts;
+    }
+
     public String getId() {
         return id;
     }
