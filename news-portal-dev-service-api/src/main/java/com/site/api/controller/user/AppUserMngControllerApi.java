@@ -19,8 +19,8 @@ public interface AppUserMngControllerApi {
     @ApiOperation(value = "Query all users", notes = "Query all users", httpMethod = "POST")
     public GraceJSONResult queryAll(@RequestParam String nickname,
                                     @RequestParam Integer status,
-                                    @RequestParam Date startDate,
-                                    @RequestParam Date endDate,
+                                    @RequestParam(required = false) Date startDate,
+                                    @RequestParam(required = false) Date endDate,
                                     @RequestParam Integer page,
                                     @RequestParam Integer pageSize);
 

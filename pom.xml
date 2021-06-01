@@ -14,7 +14,7 @@
         <module>news-portal-dev-service-user</module>
         <module>news-portal-dev-service-files</module>
         <module>news-portal-dev-service-admin</module>
-        <module>news-portal-dev-article</module>
+        <module>news-portal-dev-service-article</module>
     </modules>
     <!--
     1. 聚合工程可以分为顶级项目（顶级工程，父工程）与子工程（子module模块），
@@ -215,9 +215,18 @@
         <pluginManagement>
         <plugins>
             <!-- Java 编译 -->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
             </plugin>
         </plugins>
         </pluginManagement>

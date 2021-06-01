@@ -2,22 +2,21 @@ package com.site.article.controller;
 
 import com.site.api.BaseController;
 import com.site.api.controller.article.ArticleControllerApi;
-import com.site.api.controller.user.HelloControllerApi;
 import com.site.article.service.ArticleService;
 import com.site.enums.ArticleCoverType;
+import com.site.enums.ArticleReviewStatus;
+import com.site.enums.YesOrNo;
 import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
 import com.site.utils.JsonUtils;
 import com.site.utils.PagedGridResult;
-import com.site.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -86,14 +85,60 @@ public class ArticleController extends BaseController implements ArticleControll
             page = COMMON_START_PAGE;
         }
         if (pageSize == null) {
-            pageSize =COMMON_PAGE_SIZE;
+            pageSize = COMMON_PAGE_SIZE;
         }
 
         // Query article list by using service
         PagedGridResult grid = articleService.queryMyArticleList(userId, keyword, status, startDate, endDate, page, pageSize);
 
-
-
         return GraceJSONResult.ok(grid);
+    }
+
+    @Override
+    public GraceJSONResult queryAllList(Integer status, Integer page, Integer pageSize) {
+
+        if (page == null) {
+            page = COMMON_START_PAGE;
+        }
+
+        if (pageSize == null) {
+            pageSize = COMMON_PAGE_SIZE;
+        }
+
+        PagedGridResult gridResult = articleService.queryAllArticleListAdmin(status, page, pageSize);
+
+        return GraceJSONResult.ok(gridResult);
+
+    }
+
+    @Override
+    public GraceJSONResult doReview(String articleId, Integer passOrNot) {
+        Integer pendingStatus;
+        if (passOrNot == YesOrNo.YES.type) {
+            // Review passed
+            pendingStatus = ArticleReviewStatus.SUCCESS.type;
+        } else if (passOrNot == YesOrNo.NO.type) {
+            // Review Failed
+            pendingStatus = ArticleReviewStatus.FAILED.type;
+        } else {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
+
+        // Update database with review status
+        articleService.updateArticleStatus(articleId, pendingStatus);
+
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult delete(String userId, String articleId) {
+        articleService.deleteArticle(userId, articleId);
+        return GraceJSONResult.ok();
+    }
+
+    @Override
+    public GraceJSONResult withdraw(String userId, String articleId) {
+        articleService.withdrawArticle(userId, articleId);
+        return GraceJSONResult.ok();
     }
 }

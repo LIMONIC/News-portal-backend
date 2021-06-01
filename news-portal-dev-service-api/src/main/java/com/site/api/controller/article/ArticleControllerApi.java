@@ -5,6 +5,7 @@ import com.site.pojo.bo.NewArticleBO;
 import com.site.pojo.bo.SaveCategoryBO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,24 +16,42 @@ import java.util.Date;
 @RequestMapping("article")
 public interface ArticleControllerApi {
 
-    @PostMapping("createArticle")
     @ApiOperation(value = "User posts an article", notes = "User posts an article", httpMethod = "POST")
+    @PostMapping("createArticle")
     public GraceJSONResult createArticle(@RequestBody @Valid NewArticleBO newArticleBO,
                                                 BindingResult result);
 
-//    @PostMapping("queryMyList")
-//    @ApiOperation(value = "Query all articles posted by current user", notes = "Query all articles posted by current user", httpMethod = "POST")
-//    public GraceJSONResult queryMyList(@RequestParam String userId, @RequestParam String keyword, @RequestParam Integer status, @RequestParam Date startDate,
-//                                       @RequestParam Date endDate, @RequestParam Integer page, @RequestParam Integer pageSize);
-
+    @ApiOperation(value = "Query all articles posted by current user", notes = "Query all articles posted by current user", httpMethod = "POST")
     @PostMapping("queryMyList")
-    @ApiOperation(value = "查询用户的所有文章列表", notes = "查询用户的所有文章列表", httpMethod = "POST")
-    public GraceJSONResult queryMyList(@RequestParam  String userId,
+    public GraceJSONResult queryMyList(@RequestParam String userId,
                                        @RequestParam String keyword,
-                                       @RequestParam(value = "status") Integer status,
-                                       @RequestParam Date startDate,
-                                       @RequestParam Date endDate,
+                                       @RequestParam(required=false) Integer status,
+                                       @RequestParam(required=false) Date startDate,
+                                       @RequestParam(required=false) Date endDate,
                                        @RequestParam Integer page,
                                        @RequestParam Integer pageSize);
 
+    @PostMapping("queryAllList")
+    @ApiOperation(value = "Query the list of all articles by admin", notes = "Query the list of all articles by admin", httpMethod = "POST")
+    public GraceJSONResult queryAllList(@RequestParam(required = false) Integer status,
+                                        @ApiParam(name = "page", value = "page No.", required = false)
+                                        @RequestParam Integer page,
+                                        @ApiParam(name = "pageSize", value = "No. of items on each page", required = false)
+                                        @RequestParam Integer pageSize);
+
+
+    @PostMapping("doReview")
+    @ApiOperation(value = "Review result of the article by the admin", notes = "Review result of the article by the admin", httpMethod = "POST")
+    public GraceJSONResult doReview(@RequestParam String articleId,
+                                    @RequestParam Integer passOrNot);
+
+    @PostMapping("/delete")
+    @ApiOperation(value = "User delete article", notes = "User delete article", httpMethod = "POST")
+    public GraceJSONResult delete(@RequestParam String userId,
+                                  @RequestParam String articleId);
+
+    @PostMapping("/withdraw")
+    @ApiOperation(value = "User withdraw article", notes = "User withdraw article", httpMethod = "POST")
+    public GraceJSONResult withdraw(@RequestParam String userId,
+                                    @RequestParam String articleId);
 }

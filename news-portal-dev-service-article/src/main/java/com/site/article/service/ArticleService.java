@@ -26,6 +26,27 @@ public interface ArticleService {
     public PagedGridResult queryMyArticleList(String userId, String keyword, Integer status, Date startDate,
                                               Date endDate, Integer page, Integer pageSize);
 
+    /**
+     * Update article status
+     * @param articleId
+     * @param pendingStatus
+     */
+    public void updateArticleStatus(String articleId, Integer pendingStatus);
+
+    /**
+     * 管理员查询文章列表
+     */
+    public PagedGridResult queryAllArticleListAdmin(Integer status, Integer page, Integer pageSize);
+
+    /**
+     * 删除文章
+     */
+    public void deleteArticle(String userId, String articleId);
+
+    /**
+     * 撤回文章
+     */
+    public void withdrawArticle(String userId, String articleId);
 }
 
 
