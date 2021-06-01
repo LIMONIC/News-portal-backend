@@ -21,7 +21,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import static com.site.utils.JsonUtils.jsonToList;
 
 @RestController
 public class UserController extends BaseController implements UserControllerApi {
@@ -95,5 +99,33 @@ public class UserController extends BaseController implements UserControllerApi 
         return GraceJSONResult.ok();
     }
 
+    @Override
+    public GraceJSONResult queryByIds(String userIds) {
+        if (StringUtils.isBlank(userIds)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
 
+        List<AppUserVO> publisherList = new ArrayList<>();
+        List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
+        for (String userId : userIdList) {
+            // Obtain user's basic info
+            AppUserVO userVO = getBasicUserInfo(userId);
+
+            // add user info to publisherList
+            publisherList.add(userVO);
+
+        }
+        return GraceJSONResult.ok(publisherList);
+    }
+
+    private AppUserVO getBasicUserInfo(String userId) {
+        // 1. Query user info by userId
+        AppUser user = getUser(userId);
+
+        // 2. return user info
+        AppUserVO userVO = new AppUserVO();
+        BeanUtils.copyProperties(user, userVO);
+
+        return userVO;
+    }
 }

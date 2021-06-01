@@ -8,10 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,4 +28,8 @@ public interface FriendLinkControllerApi {
     @ApiOperation(value = "API for deleting friendship link", notes = "API for deleting friendship link", httpMethod = "POST")
     @PostMapping("/delete") // route of the method
     public GraceJSONResult delete(@RequestParam String linkId);
+
+    @ApiOperation(value = "[Homepage] API for querying the list of friendship links", notes = "[Homepage] API for querying the list of friendship links", httpMethod = "GET")
+    @GetMapping("/portal/list") // route of the method
+    public GraceJSONResult queryPortalAllFriendLinkList();
 }

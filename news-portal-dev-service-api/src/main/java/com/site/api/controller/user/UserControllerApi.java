@@ -18,12 +18,11 @@ public interface UserControllerApi {
 
     @ApiOperation(value = "Get user basic info", notes = "Get user basic info", httpMethod = "POST")
     @PostMapping("/getUserInfo")
-    // HttpServletRequest 获取 ip地址
+    // HttpServletRequest: get ip address
     public GraceJSONResult getUserInfo(@RequestParam String userId);
 
     @ApiOperation(value = "Get user account info", notes = "Get user account info", httpMethod = "POST")
     @PostMapping("/getAccountInfo")
-    // HttpServletRequest 获取 ip地址
     public GraceJSONResult getAccountInfo(@RequestParam String userId);
 
     @ApiOperation(value = "Update user info", notes = "Update user info", httpMethod = "POST")
@@ -33,5 +32,7 @@ public interface UserControllerApi {
     // @RequestBody means the JSON passed from front end is match with the Object here
     public GraceJSONResult updateUserInfo(@RequestBody @Valid UpdateUserInfoBO updateUserInfoBO, BindingResult result);
 
-
+    @ApiOperation(value = "Query user list base on user ids", notes = "Query user list base on user ids", httpMethod = "GET")
+    @GetMapping("/queryByIds")
+    public GraceJSONResult queryByIds(@RequestParam String userIds);
 }

@@ -25,4 +25,10 @@ public interface FriendLinkService {
      */
     public void deleteFriendList (String linkId);
 
+    /**
+     * Homepage: query the list of friend link
+     * @return
+     */
+    public List<FriendLinkMO> queryPortalAllFriendLinkList();
+
 }
