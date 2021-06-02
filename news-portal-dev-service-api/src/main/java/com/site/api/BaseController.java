@@ -1,14 +1,19 @@
 package com.site.api;
 
+import com.site.grace.result.GraceJSONResult;
+import com.site.pojo.vo.AppUserVO;
+import com.site.utils.JsonUtils;
 import com.site.utils.RedisOperator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BaseController {
     @Autowired
@@ -44,6 +50,10 @@ public class BaseController {
     public static final Integer COOKIE_DELETE = 0;
     public static final Integer COMMON_START_PAGE = 1;
     public static final Integer COMMON_PAGE_SIZE = 10;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     // get the error info from BO
     public Map<String, String> getErrors(BindingResult result) {
@@ -100,5 +110,21 @@ public class BaseController {
             countsStr = "0";
         }
         return Integer.valueOf(countsStr);
+    }
+
+    // get user's basic info
+    public List<AppUserVO> getBasicUserList(Set idSet) {
+        String userServerUrlExecute = "http://user.inews.com:8003/user/queryByIds?userIds="
+                + JsonUtils.objectToJson(idSet);
+        ResponseEntity<GraceJSONResult> responseEntity
+                = restTemplate.getForEntity(userServerUrlExecute, GraceJSONResult.class);
+        GraceJSONResult bodyResult = responseEntity.getBody();
+        List<AppUserVO> userVOList = null;
+        if (bodyResult.getStatus() == 200) {
+            String userJson = JsonUtils.objectToJson(bodyResult.getData());
+            userVOList = JsonUtils.jsonToList(userJson, AppUserVO.class);
+        }
+
+        return userVOList;
     }
 }

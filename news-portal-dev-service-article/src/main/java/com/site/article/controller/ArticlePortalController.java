@@ -116,10 +116,9 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         return gridResult;
     }
 
-    // get user's basic info
     private List<AppUserVO> getPublisherList(Set idSet) {
-        String userServerUrlExecute = "http://user.inews.com:8003/user/queryByIds?userIds="
-                + JsonUtils.objectToJson(idSet);
+        String userServerUrlExecute
+                = "http://user.inews.com:8003/user/queryByIds?userIds=" + JsonUtils.objectToJson(idSet);
         ResponseEntity<GraceJSONResult> responseEntity
                 = restTemplate.getForEntity(userServerUrlExecute, GraceJSONResult.class);
         GraceJSONResult bodyResult = responseEntity.getBody();
@@ -128,7 +127,6 @@ public class ArticlePortalController extends BaseController implements ArticlePo
             String userJson = JsonUtils.objectToJson(bodyResult.getData());
             publisherList = JsonUtils.jsonToList(userJson, AppUserVO.class);
         }
-
         return publisherList;
     }
 
