@@ -1,10 +1,7 @@
 package com.site.api.config;
 
 import com.site.api.controller.user.PassportControllerApi;
-import com.site.api.interceptors.AdminTokenInterceptor;
-import com.site.api.interceptors.PassportInterceptor;
-import com.site.api.interceptors.UserActiveInterceptor;
-import com.site.api.interceptors.UserTokenInterceptor;
+import com.site.api.interceptors.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -31,6 +28,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public UserActiveInterceptor userActiveInterceptor() {
         return new UserActiveInterceptor();
+    }
+
+    @Bean
+    public ArticleReadInterceptor articleReadInterceptor() {
+        return new ArticleReadInterceptor();
     }
 
     @Override
@@ -63,8 +65,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/categoryMng/saveOrUpdateCategory")
                 .addPathPatterns("/categoryMng/getCatList");
 
-//        registry.addInterceptor(articleReadInterceptor())
-//                .addPathPatterns("/portal/article/readArticle");
+        registry.addInterceptor(articleReadInterceptor())
+                .addPathPatterns("/portal/article/readArticle");
 
 
     }

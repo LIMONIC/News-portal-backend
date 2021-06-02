@@ -7,10 +7,11 @@ import com.site.article.service.ArticlePortalService;
 import com.site.enums.ArticleReviewStatus;
 import com.site.enums.YesOrNo;
 import com.site.pojo.Article;
-//import com.site.pojo.vo.ArticleDetailVO;
+import com.site.pojo.vo.ArticleDetailVO;
 import com.site.utils.PagedGridResult;
 //import com.site.utils.extend.AliTextReviewUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -98,22 +99,22 @@ public class ArticlePortalServiceImpl extends BaseService implements ArticlePort
         return setterPagedGrid(list, 1);
     }
 
-//    @Override
-//    public ArticleDetailVO queryDetail(String articleId) {
-//
-//        Article article = new Article();
-//        article.setId(articleId);
-//        article.setIsAppoint(YesOrNo.NO.type);
-//        article.setIsDelete(YesOrNo.NO.type);
-//        article.setArticleStatus(ArticleReviewStatus.SUCCESS.type);
-//
-//        Article result = articleMapper.selectOne(article);
-//
-//        ArticleDetailVO detailVO = new ArticleDetailVO();
-//        BeanUtils.copyProperties(result, detailVO);
-//
-//        detailVO.setCover(result.getArticleCover());
-//
-//        return detailVO;
-//    }
+    @Override
+    public ArticleDetailVO queryDetail(String articleId) {
+
+        Article article = new Article();
+        article.setId(articleId);
+        article.setIsAppoint(YesOrNo.NO.type);
+        article.setIsDelete(YesOrNo.NO.type);
+        article.setArticleStatus(ArticleReviewStatus.SUCCESS.type);
+
+        Article result = articleMapper.selectOne(article);
+
+        ArticleDetailVO detailVO = new ArticleDetailVO();
+        BeanUtils.copyProperties(result, detailVO);
+
+        detailVO.setCover(result.getArticleCover());
+
+        return detailVO;
+    }
 }

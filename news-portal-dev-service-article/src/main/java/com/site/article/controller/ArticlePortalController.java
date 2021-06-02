@@ -14,7 +14,9 @@ import com.site.pojo.Article;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
 import com.site.pojo.vo.AppUserVO;
+import com.site.pojo.vo.ArticleDetailVO;
 import com.site.pojo.vo.IndexArticleVO;
+import com.site.utils.IPUtil;
 import com.site.utils.JsonUtils;
 import com.site.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
@@ -114,6 +116,7 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         return gridResult;
     }
 
+    // get user's basic info
     private List<AppUserVO> getPublisherList(Set idSet) {
         String userServerUrlExecute = "http://user.inews.com:8003/user/queryByIds?userIds="
                 + JsonUtils.objectToJson(idSet);
@@ -166,12 +169,30 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
     @Override
     public GraceJSONResult detail(String articleId) {
-        return null;
+        ArticleDetailVO detailVO = articlePortalService.queryDetail(articleId);
+
+        Set<String> idSet = new HashSet<>();
+        idSet.add(detailVO.getPublishUserId());
+        List<AppUserVO> publisherList = getPublisherList(idSet);
+
+        if (!publisherList.isEmpty()) {
+            detailVO.setPublishUserName(publisherList.get(0).getNickname());
+        }
+
+        detailVO.setReadCounts(getCountsFromRedis(REDIS_ARTICLE_READ_COUNTS + ":" + articleId));
+        return GraceJSONResult.ok(detailVO);
     }
 
     @Override
     public GraceJSONResult readArticle(String articleId, HttpServletRequest request) {
-        return null;
+
+        String userIp = IPUtil.getRequestIp(request);
+        // Create a key for current user Ip address and save it to redis.
+        // Once a user has already read article, the read counter should not increase by re-accessing from same ip address
+        redis.setnx(REDIS_ALREADY_READ + ":" + articleId + ":" + userIp, userIp); // If key exist, cannot be update.
+
+        redis.increment(REDIS_ARTICLE_READ_COUNTS + ":" + articleId, 1);
+        return GraceJSONResult.ok();
     }
 
 }

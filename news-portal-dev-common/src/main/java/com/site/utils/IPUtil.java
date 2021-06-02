@@ -3,7 +3,7 @@ package com.site.utils;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 用户获得用户ip的工具类
+ * Tools for get user's ip address
  */
 public class IPUtil {
 

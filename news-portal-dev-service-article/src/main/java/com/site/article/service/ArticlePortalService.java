@@ -1,7 +1,7 @@
 package com.site.article.service;
 
 import com.site.pojo.Article;
-//import com.site.pojo.vo.ArticleDetailVO;
+import com.site.pojo.vo.ArticleDetailVO;
 import com.site.utils.PagedGridResult;
 
 import java.util.List;
@@ -35,5 +35,6 @@ public interface ArticlePortalService {
     /**
      * Query article details
      */
-//    public ArticleDetailVO queryDetail(String articleId);
+    public ArticleDetailVO queryDetail(String articleId);
+
 }

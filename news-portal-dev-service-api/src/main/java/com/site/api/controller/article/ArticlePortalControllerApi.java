@@ -39,10 +39,10 @@ public interface ArticlePortalControllerApi {
     public GraceJSONResult queryGoodArticleListOfWriter(@RequestParam String writerId);
 
     @GetMapping("detail")
-    @ApiOperation(value = "文章详情查询", notes = "文章详情查询", httpMethod = "GET")
+    @ApiOperation(value = "Get article details", notes = "Get article details", httpMethod = "GET")
     public GraceJSONResult detail(@RequestParam String articleId);
 
     @PostMapping("readArticle")
-    @ApiOperation(value = "阅读文章，文章阅读量累加", notes = "阅读文章，文章阅读量累加", httpMethod = "POST")
+    @ApiOperation(value = "Article read counter", notes = "Article read counter", httpMethod = "POST")
     public GraceJSONResult readArticle(@RequestParam String articleId, HttpServletRequest request);
 }
