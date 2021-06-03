@@ -44,10 +44,11 @@ public class CommentController extends BaseController implements CommentControll
         Set<String> idSet = new HashSet<>();
         idSet.add(userId);
         String nickname = getBasicUserList(idSet).get(0).getNickname();
+        String face = getBasicUserList(idSet).get(0).getFace();
 
         // 3. Save user's comment to database
         commentPortalService.createComment(commentReplyBO.getArticleId(), commentReplyBO.getFatherId(),
-                                            commentReplyBO.getContent(), userId, nickname);
+                                            commentReplyBO.getContent(), userId, nickname, face);
 
         return GraceJSONResult.ok();
     }

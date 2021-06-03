@@ -11,7 +11,8 @@ public interface CommentPortalService {
                               String fatherCommentId,
                               String content,
                               String userId,
-                              String nickname);
+                              String nickname,
+                              String face);
 
     /**
      * Query all comments of current article
