@@ -42,6 +42,12 @@ spring:
       uri: mongodb://root:lmqFYJk>5H26@LocalHost:27017
       database: news-portal
 
+  freemarker:
+    charset: UTF-8
+    content-type: text/html
+    suffix: .ftl
+    template-loader-path: classpath:/templates/
+
 ############################################################
 #
 # mybatis 配置

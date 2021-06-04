@@ -42,6 +42,8 @@
         <mapper-spring-boot-starter.version>2.1.5</mapper-spring-boot-starter.version>
         <pagehelper-spring-boot-starter.version>1.2.12</pagehelper-spring-boot-starter.version>
 
+        <spring-boot-freemarker.version>2.4.3</spring-boot-freemarker.version>
+
         <okhttp.version>4.2.2</okhttp.version>
         <jackson.version>2.10.2</jackson.version>
 
@@ -122,6 +124,15 @@
                 <artifactId>mapper-spring-boot-starter</artifactId>
                 <version>${mapper-spring-boot-starter.version}</version>
             </dependency>
+
+            <!-- freemarker -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-freemarker</artifactId>
+                <version>${spring-boot-freemarker.version}</version>
+            </dependency>
+
+
             <!--pagehelper 分页-->
             <dependency>
                 <groupId>com.github.pagehelper</groupId>
