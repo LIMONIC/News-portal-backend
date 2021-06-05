@@ -42,6 +42,10 @@ public interface ArticlePortalControllerApi {
     @ApiOperation(value = "Get article details", notes = "Get article details", httpMethod = "GET")
     public GraceJSONResult detail(@RequestParam String articleId);
 
+    @GetMapping("readCounts")
+    @ApiOperation(value = "Get article reads", notes = "Get article reads", httpMethod = "GET")
+    public Integer readCounts(@RequestParam String articleId);
+
     @PostMapping("readArticle")
     @ApiOperation(value = "Article read counter", notes = "Article read counter", httpMethod = "POST")
     public GraceJSONResult readArticle(@RequestParam String articleId, HttpServletRequest request);

@@ -1,5 +1,6 @@
 package com.site.article.controller;
 
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.site.api.BaseController;
 import com.site.api.controller.article.ArticleControllerApi;
 import com.site.article.service.ArticleService;
@@ -10,19 +11,31 @@ import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
+import com.site.pojo.vo.AppUserVO;
+import com.site.pojo.vo.ArticleDetailVO;
 import com.site.utils.JsonUtils;
 import com.site.utils.PagedGridResult;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.Writer;
+import java.util.*;
 
 @RestController
 public class ArticleController extends BaseController implements ArticleControllerApi {
@@ -127,8 +140,93 @@ public class ArticleController extends BaseController implements ArticleControll
         // Update database with review status
         articleService.updateArticleStatus(articleId, pendingStatus);
 
+        if (pendingStatus == ArticleReviewStatus.SUCCESS.type) {
+            // Review passed. Generate static HTML for article contents
+            try {
+                createArticleHTML(articleId);
+                String articleMongoId = createArticleHTMLToGridFS(articleId);
+                // Save the id to relevant article
+                articleService.updateArticleToGridFS(articleId, articleMongoId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return GraceJSONResult.ok();
     }
+
+    @Value("${freemarker.html.article}")
+    private String articlePath;
+
+
+    // Generate static article HTML
+    public void createArticleHTML (String articleId) throws Exception {
+
+        Template template = getTemplate(articleId);
+
+        // Get detailed data from article
+        ArticleDetailVO detailVO = getArticleDetail(articleId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("articleDetail", detailVO);
+
+        File tempDic = new File(articlePath);
+        if (!tempDic.exists()) {
+            tempDic.mkdirs();
+        }
+
+        articlePath = articlePath + File.separator + detailVO.getId() + ".html";
+        Writer out = new FileWriter(articlePath);
+        template.process(map, out);
+        out.close();
+    }
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
+
+    private Template getTemplate(String articleId) throws Exception{
+        Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        String classPath = this.getClass().getResource("/").getPath();
+        cfg.setDirectoryForTemplateLoading(new File(classPath.replace("%20", " ") + "templates"));
+
+        return cfg.getTemplate("detail.ftl", "utf-8");
+    }
+
+    // Generate static article HTML and send to gridFS
+    public String createArticleHTMLToGridFS (String articleId) throws Exception {
+
+        Template template = getTemplate(articleId);
+
+        // Get detailed data from article
+        ArticleDetailVO detailVO = getArticleDetail(articleId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("articleDetail", detailVO);
+
+        String htmlContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+//        System.out.println(htmlContent);
+
+        InputStream inputStream = IOUtils.toInputStream(htmlContent);
+
+        ObjectId fileId = gridFSBucket.uploadFromStream(detailVO.getId() + ".html", inputStream);
+        return fileId.toString();
+    }
+
+    // Set up a restAPI request, get detailed info of the article
+    public ArticleDetailVO getArticleDetail(String articleId) {
+        String url = "http://www.inews.com:8001/portal/article/detail?articleId="
+                + articleId;
+        ResponseEntity<GraceJSONResult> responseEntity
+                = restTemplate.getForEntity(url, GraceJSONResult.class);
+        GraceJSONResult bodyResult = responseEntity.getBody();
+        ArticleDetailVO detailVO = null;
+        if (bodyResult.getStatus() == 200) {
+            String detailJson = JsonUtils.objectToJson(bodyResult.getData());
+            detailVO = JsonUtils.jsonToPojo(detailJson, ArticleDetailVO.class);
+        }
+
+        return detailVO;
+    }
+
+
 
     @Override
     public GraceJSONResult delete(String userId, String articleId) {

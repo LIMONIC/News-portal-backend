@@ -52,7 +52,7 @@ public class BaseController {
     public static final Integer COMMON_PAGE_SIZE = 10;
 
     @Autowired
-    private RestTemplate restTemplate;
+    public RestTemplate restTemplate;
 
 
     // get the error info from BO
