@@ -2,6 +2,7 @@ package com.site.article.service.impl;
 
 
 import com.github.pagehelper.PageHelper;
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.site.api.service.BaseService;
 import com.site.article.mapper.ArticleMapper;
 import com.site.article.mapper.ArticleMapperCustom;
@@ -17,11 +18,15 @@ import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
 import com.site.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
@@ -201,6 +206,36 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_DELETE_ERROR);
         }
+        deleteHTML(articleId);
+    }
+
+    @Autowired
+    private GridFSBucket gridFSBucket;
+    /**
+     * 文章撤回删除后，删除静态化的html
+     */
+    private void deleteHTML(String articleId) {
+        // 1. Query article's mongoFileId
+        Article pending = articleMapper.selectByPrimaryKey(articleId);
+        String articleMongoId = pending.getMongoFileId();
+
+        // 2. Delete static html in GridFS
+        gridFSBucket.delete(new ObjectId(articleMongoId));
+
+        // 3. Delete static HTML in front end server
+        doDeleteArticleHTML(articleId);
+//        doDeleteArticleHTMLByMQ(articleId);
+    }
+
+    @Autowired
+    public RestTemplate restTemplate;
+    private void doDeleteArticleHTML(String articleId) {
+        String url = "http://html.inews.com:8002/article/html/delete?articleId=" + articleId;
+        ResponseEntity<Integer> responseEntity = restTemplate.getForEntity(url, Integer.class);
+        int status = responseEntity.getBody();
+        if (status != HttpStatus.OK.value()) {
+            GraceException.display(ResponseStatusEnum.SYSTEM_OPERATION_ERROR);
+        }
     }
 
     @Transactional
@@ -215,6 +250,7 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (result != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_WITHDRAW_ERROR);
         }
+        deleteHTML(articleId);
     }
 
     private Example makeExampleCriteria(String userId, String articleId) {

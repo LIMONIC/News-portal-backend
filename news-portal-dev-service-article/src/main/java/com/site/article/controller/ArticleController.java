@@ -7,6 +7,7 @@ import com.site.article.service.ArticleService;
 import com.site.enums.ArticleCoverType;
 import com.site.enums.ArticleReviewStatus;
 import com.site.enums.YesOrNo;
+import com.site.exception.GraceException;
 import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Category;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -147,6 +149,8 @@ public class ArticleController extends BaseController implements ArticleControll
                 String articleMongoId = createArticleHTMLToGridFS(articleId);
                 // Save the id to relevant article
                 articleService.updateArticleToGridFS(articleId, articleMongoId);
+                // Download static html
+                doDownloadArticleHTML(articleId, articleMongoId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -158,6 +162,16 @@ public class ArticleController extends BaseController implements ArticleControll
     @Value("${freemarker.html.article}")
     private String articlePath;
 
+    private void doDownloadArticleHTML(String articleId, String articleMongoId) {
+        String url = "http://html.inews.com:8002/article/html/download?articleId=" +
+                articleId + "&articleMongoId=" + articleMongoId;
+        ResponseEntity<Integer> responseEntity =  restTemplate.getForEntity(url, Integer.class);
+        int status = responseEntity.getBody();
+        if (status != HttpStatus.OK.value()) {
+            GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
+
+    }
 
     // Generate static article HTML
     public void createArticleHTML (String articleId) throws Exception {
@@ -174,8 +188,8 @@ public class ArticleController extends BaseController implements ArticleControll
             tempDic.mkdirs();
         }
 
-        articlePath = articlePath + File.separator + detailVO.getId() + ".html";
-        Writer out = new FileWriter(articlePath);
+        String path = articlePath + File.separator + detailVO.getId() + ".html";
+        Writer out = new FileWriter(path);
         template.process(map, out);
         out.close();
     }

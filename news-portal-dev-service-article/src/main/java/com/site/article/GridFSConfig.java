@@ -1,4 +1,4 @@
-package com.site.files;
+package com.site.article;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
