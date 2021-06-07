@@ -8,16 +8,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-@RestController
-public class ArticleHTMLController implements ArticleHTMLControllerApi {
+@Component
+public class ArticleHTMLComponent {
 
-    final static Logger logger = LoggerFactory.getLogger(ArticleHTMLController.class);
+    final static Logger logger = LoggerFactory.getLogger(ArticleHTMLComponent.class);
 
     @Autowired
     private GridFSBucket gridFSBucket;
@@ -25,9 +26,6 @@ public class ArticleHTMLController implements ArticleHTMLControllerApi {
     @Value("${freemarker.html.article}")
     private String articlePath;
 
-
-    // The following methods are used for operating static article html with database
-    @Override
     public Integer download(String articleId, String articleMongoId) throws Exception {
 
         // Storage address of static html
@@ -45,7 +43,6 @@ public class ArticleHTMLController implements ArticleHTMLControllerApi {
         return HttpStatus.OK.value();
     }
 
-    @Override
     public Integer delete(String articleId) throws Exception {
 
         // Compose the storage path of article html

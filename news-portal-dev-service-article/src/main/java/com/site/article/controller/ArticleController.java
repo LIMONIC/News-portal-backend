@@ -2,7 +2,9 @@ package com.site.article.controller;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.site.api.BaseController;
+import com.site.api.config.RabbitMQConfig;
 import com.site.api.controller.article.ArticleControllerApi;
+import com.site.article.service.ArticlePortalService;
 import com.site.article.service.ArticleService;
 import com.site.enums.ArticleCoverType;
 import com.site.enums.ArticleReviewStatus;
@@ -23,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -144,20 +147,25 @@ public class ArticleController extends BaseController implements ArticleControll
 
         if (pendingStatus == ArticleReviewStatus.SUCCESS.type) {
             // Review passed. Generate static HTML for article contents
+            generateStaticHTML(articleId);
+        }
+        return GraceJSONResult.ok();
+    }
+
+    public void generateStaticHTML(String articleId) {
             try {
                 createArticleHTML(articleId);
                 String articleMongoId = createArticleHTMLToGridFS(articleId);
                 // Save the id to relevant article
                 articleService.updateArticleToGridFS(articleId, articleMongoId);
                 // Download static html
-                doDownloadArticleHTML(articleId, articleMongoId);
+//                doDownloadArticleHTML(articleId, articleMongoId);
+                // Send request to MQ queue. Make consumer listen and download static html
+                doDownloadArticleHTMLByMQ(articleId, articleMongoId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-        return GraceJSONResult.ok();
-    }
 
     @Value("${freemarker.html.article}")
     private String articlePath;
@@ -170,11 +178,20 @@ public class ArticleController extends BaseController implements ArticleControll
         if (status != HttpStatus.OK.value()) {
             GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
         }
+    }
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    private void doDownloadArticleHTMLByMQ(String articleId, String articleMongoId) {
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_ARTICLE,
+                "article.download.do",
+                articleId + "," + articleMongoId);
 
     }
 
     // Generate static article HTML
-    public void createArticleHTML (String articleId) throws Exception {
+    public void createArticleHTML(String articleId) throws Exception {
 
         Template template = getTemplate(articleId);
 

@@ -3,6 +3,8 @@ package com.site.article.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.mongodb.client.gridfs.GridFSBucket;
+import com.site.api.config.RabbitMQConfig;
+import com.site.api.config.RabbitMQDelayConfig;
 import com.site.api.service.BaseService;
 import com.site.article.mapper.ArticleMapper;
 import com.site.article.mapper.ArticleMapperCustom;
@@ -16,10 +18,19 @@ import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Article;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
+import com.site.pojo.vo.ArticleDetailVO;
+import com.site.utils.DateUtil;
 import com.site.utils.PagedGridResult;
+import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.n3r.idworker.Sid;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,8 +40,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.Date;
-import java.util.List;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.*;
 
 @Service
 public class ArticleServiceImpl extends BaseService implements ArticleService {
@@ -72,6 +85,36 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (res != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_CREATE_ERROR);
         }
+
+        // Send delayed message to MQ. Calculate the difference between the scheduled time and current time.
+        // Set the delayed time with time difference
+        if (article.getIsAppoint() == ArticleAppointType.TIMING.type) {
+
+            Date scheduledTime = newArticleBO.getPublishTime();
+            Date now = new Date();
+
+            int delayTimes = (int)(scheduledTime.getTime() - now.getTime());
+
+            MessagePostProcessor messagePostProcessor = new MessagePostProcessor() {
+                @Override
+                public Message postProcessMessage(Message message) throws AmqpException {
+                    // Set persistence mode for messages
+                    message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                    // Set the delayed time for messages(ms)
+                    message.getMessageProperties().setDelay(delayTimes);
+                    return message;
+                }
+            };
+
+            rabbitTemplate.convertAndSend(RabbitMQDelayConfig.EXCHANGE_DELAY,
+                    "publish.delay.display",
+                    articleId,
+                    messagePostProcessor);
+
+            System.out.println("Delayed message (timed article posting): " + new Date());
+
+        }
+
 
         // Check article context by cloud AI (Automated Review)
         String reviewTextResult = ArticleReviewLevel.REVIEW.type;
@@ -124,6 +167,15 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
     @Override
     public void updateAppointToPublish() {
         articleMapperCustom.updateAppointToPublish();
+    }
+
+    @Transactional
+    @Override
+    public void updateArticleToPublish(String articleId) {
+        Article article = new Article();
+        article.setId(articleId);
+        article.setIsAppoint(ArticleAppointType.IMMEDIATELY.type);
+        articleMapper.updateByPrimaryKeySelective(article);
     }
 
     @Override
@@ -223,8 +275,8 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         gridFSBucket.delete(new ObjectId(articleMongoId));
 
         // 3. Delete static HTML in front end server
-        doDeleteArticleHTML(articleId);
-//        doDeleteArticleHTMLByMQ(articleId);
+//        doDeleteArticleHTML(articleId);
+        doDeleteArticleHTMLByMQ(articleId);
     }
 
     @Autowired
@@ -236,6 +288,13 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         if (status != HttpStatus.OK.value()) {
             GraceException.display(ResponseStatusEnum.SYSTEM_OPERATION_ERROR);
         }
+    }
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    private void doDeleteArticleHTMLByMQ(String articleId) {
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_ARTICLE,
+                "article.html.download.do", articleId);
     }
 
     @Transactional

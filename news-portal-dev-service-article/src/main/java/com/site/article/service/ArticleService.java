@@ -15,9 +15,14 @@ public interface ArticleService {
     public void createArticle(NewArticleBO newArticleBO, Category category);
 
     /**
-     * Update scheduled articles to instant release
+     * Update scheduled articles status from scheduled to published.
      */
     public void updateAppointToPublish();
+
+    /**
+     * Update ONE scheduled article status from scheduled to published.
+     */
+    public void updateArticleToPublish(String articleId);
 
     /**
      * User center - query my article list

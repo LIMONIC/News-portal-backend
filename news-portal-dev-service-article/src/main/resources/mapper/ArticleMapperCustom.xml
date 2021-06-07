@@ -12,3 +12,5 @@
             is_appoint = 1
     </update>
 </mapper>
+<!--For huge data, it consume resource for processing all the data in short time-->
+<!--The time accuracy is not good enought for this method-->

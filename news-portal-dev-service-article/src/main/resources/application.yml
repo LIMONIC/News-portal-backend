@@ -41,12 +41,17 @@ spring:
     mongodb:
       uri: mongodb://root:lmqFYJk>5H26@LocalHost:27017
       database: news-portal
-
   freemarker:
     charset: UTF-8
     content-type: text/html
     suffix: .ftl
     template-loader-path: classpath:/templates/
+  rabbitmq:
+    host: 192.168.137.103
+    port: 5672
+    username: ztyadmin
+    password: UQZDAt3APUAg
+    virtual-host: inews-dev
 
 ############################################################
 #

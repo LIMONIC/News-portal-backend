@@ -131,6 +131,31 @@ public class DateUtil {
     }
 
     /**
+     * Calculate time difference
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static final String timeBetween(Date startDate, Date endDate) {
+        long nd = 1000 * 24 * 60 * 60;
+        long nh = 1000 * 60 * 60;
+        long nm = 1000 * 60;
+        // long ns = 1000;
+        // get time difference in ms
+        long diff = endDate.getTime() - startDate.getTime();
+        // Calculate difference in day
+        long day = diff / nd;
+        // Calculate difference in hour
+        long hour = diff % nd / nh;
+        // Calculate difference in minute
+        long min = diff % nd % nh / nm;
+        // Calculate difference in second //Output result
+        // long sec = diff % nd % nh % nm / ns;
+        return day + " Day" + hour + " Hour" + min + " Minutes";
+    }
+
+
+    /**
      * Return a Julian date based on the input parameter. This is
      * based from calculations found at
      * <a href="http://quasar.as.utexas.edu/BillInfo/JulianDatesG.html">Julian Day Calculations

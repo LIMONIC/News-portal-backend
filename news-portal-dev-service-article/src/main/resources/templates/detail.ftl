@@ -92,7 +92,7 @@
                     </div>
                     <div class="back-year-line"></div>
 
-                    <div class="date-md">${articleDetail.publishTime?string('MM/DD')}</div>
+                    <div class="date-md">${articleDetail.publishTime?string('MM/dd')}</div>
 
                     <div class="date-times">${articleDetail.publishTime?string('HH:mm:ss')}</div>
 
@@ -554,7 +554,7 @@
                     return date;	
                 },
                 formatDataMonthDay(times) {
-                    var date = moment(times).format('MM/DD');
+                    var date = moment(times).format('MM/dd');
                     return date;	
                 },
                 formatDataTime(times) {
