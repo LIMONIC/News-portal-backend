@@ -81,3 +81,26 @@ freemarker:
   html:
     target: C:\Users\ztyam\OneDrive - University of Florida\1_Projects\news-portal\news-portal-dev\workspace\freemarker_html
     article: C:\Users\ztyam\Documents\Tools\apache-tomcat-10.0.2\webapps\news-portal\portal\a
+
+############################################################
+#
+# eureka client configuration
+#
+############################################################
+eureka:
+  # Customized eureka server info
+  server:
+    hostname: eureka
+    port: 7000
+  client:
+    # All microservice needs to register to eureka
+    register-with-eureka: true
+    # Get service from eureka registration center
+    fetch-registry: true
+    # Address of the registration center
+    service-url:
+#      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/
+      defaultZone:  http://eureka-cluster-7001:7001/eureka/,http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/
+  instance:
+    lease-renewal-interval-in-seconds: 3 # Time interval for adjust the connection of eureka client and registration center. default: 30s
+    lease-expiration-duration-in-seconds: 5 # Waiting time from the last heartbeat beacon. Exclude the service if exceed this time. Default 90s

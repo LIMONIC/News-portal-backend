@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
@@ -116,9 +118,28 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         return gridResult;
     }
 
+    // Add service discovery to obtain registered service info
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
     private List<AppUserVO> getPublisherList(Set idSet) {
+
+        String serviceId = "SERVICE-USER";
+//        List<ServiceInstance> instanceList = discoveryClient.getInstances(serviceId);
+//        ServiceInstance userService = instanceList.get(0);
+//        String userServerUrlExecute
+//                = "http://" + userService.getHost()
+//                + ":" + userService.getPort()
+//                + "/user/queryByIds?userIds="
+//                + JsonUtils.objectToJson(idSet);
         String userServerUrlExecute
-                = "http://user.inews.com:8003/user/queryByIds?userIds=" + JsonUtils.objectToJson(idSet);
+                = "http://" + serviceId
+                + "/user/queryByIds?userIds="
+                + JsonUtils.objectToJson(idSet);
+
+
+//        String userServerUrlExecute
+//                = "http://user.inews.com:8003/user/queryByIds?userIds=" + JsonUtils.objectToJson(idSet);
         ResponseEntity<GraceJSONResult> responseEntity
                 = restTemplate.getForEntity(userServerUrlExecute, GraceJSONResult.class);
         GraceJSONResult bodyResult = responseEntity.getBody();

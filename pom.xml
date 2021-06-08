@@ -16,6 +16,8 @@
         <module>news-portal-dev-service-admin</module>
         <module>news-portal-dev-service-article</module>
         <module>news-portal-dev-service-article-html</module>
+        <module>springcloud-eureka</module>
+        <module>springcloud-eureka-cluster</module>
     </modules>
     <!--
     1. 聚合工程可以分为顶级项目（顶级工程，父工程）与子工程（子module模块），
@@ -75,7 +77,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2020.0.1</version>
+                <version>2020.0.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
