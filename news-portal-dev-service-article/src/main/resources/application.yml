@@ -104,3 +104,20 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 3 # Time interval for adjust the connection of eureka client and registration center. default: 30s
     lease-expiration-duration-in-seconds: 5 # Waiting time from the last heartbeat beacon. Exclude the service if exceed this time. Default 90s
+
+# Custom ribbon configuration
+#service-user:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+ribbon:
+  ConnectTimeout: 5000          # 创建连接的超时时间，单位：ms
+  ReadTimeout: 5000             # 在连接创建好以后，调用接口的超时时间，单位：ms
+  MaxAutoRetries: 1             # 最大重试次数
+  MaxAutoRetriesNextServer: 2   # 切换到下个实例的重试次数
+  # 当请求到某个微服务5s，超时后会进行重试，先重新连接自己当前这个实例，
+  # 如果当前实例失败1次后，会切换访问集群中的下一个微服务实例，切换最大2次
+
+#logging:
+#  level:
+#    root: debug

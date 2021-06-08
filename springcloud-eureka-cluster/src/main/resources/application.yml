@@ -37,5 +37,5 @@ eureka:
     service-url:
       defaultZone: http://eureka-cluster-${eureka.other-node-port2}:${eureka.other-node-port2}/eureka/,http://eureka-cluster-${eureka.other-node-port3}:${eureka.other-node-port3}/eureka/
     server:
-#      enable-self-preservation: false
+      enable-self-preservation: false
       eviction-interval-timer-in-ms: 5000   # Time for clearing invalid nodes，5s，default: 60s
