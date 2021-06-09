@@ -84,3 +84,17 @@ eureka:
   instance:
     lease-renewal-interval-in-seconds: 3 # Time interval for adjust the connection of eureka client and registration center. default: 30s
     lease-expiration-duration-in-seconds: 5 # Waiting time from the last heartbeat beacon. Exclude the service if exceed this time. Default 90s
+
+# Hystrix configuration
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 2000   # Set hystrix maximum waiting time. If exceed 2s hystrix will trigger callback method
+      circuitBreaker:   # Circuit breaker configuration
+        enabled: true
+        requestVolumeThreshold: 10    # 触发熔断最小请求次数，默认：20
+        sleepWindowInMilliseconds: 15000    # 熔断后过几秒后尝试半开状态（请求重试），默认：5s
+        errorThresholdPercentage: 50  # 触发熔断的失败率(rate/threshold)，默认：50%

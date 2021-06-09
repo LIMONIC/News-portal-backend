@@ -147,7 +147,6 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 //*********** use feign ***********
         // use url -> use api
         GraceJSONResult bodyResult = userControllerApi.queryByIds(JsonUtils.objectToJson(idSet));
-
 //        String userServerUrlExecute
 //                = "http://user.inews.com:8003/user/queryByIds?userIds=" + JsonUtils.objectToJson(idSet);
 //        ResponseEntity<GraceJSONResult> responseEntity
@@ -157,6 +156,8 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         if (bodyResult.getStatus() == 200) {
             String userJson = JsonUtils.objectToJson(bodyResult.getData());
             publisherList = JsonUtils.jsonToList(userJson, AppUserVO.class);
+        } else {
+            publisherList = new ArrayList<>();
         }
         return publisherList;
     }

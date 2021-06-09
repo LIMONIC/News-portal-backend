@@ -1,5 +1,7 @@
 package com.site.user.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.site.api.BaseController;
 import com.site.api.controller.user.HelloControllerApi;
 import com.site.api.controller.user.UserControllerApi;
@@ -29,6 +31,7 @@ import java.util.Map;
 import static com.site.utils.JsonUtils.jsonToList;
 
 @RestController
+@DefaultProperties(defaultFallback = "defaultFallback")
 public class UserController extends BaseController implements UserControllerApi {
 
     @Autowired
@@ -109,8 +112,16 @@ public class UserController extends BaseController implements UserControllerApi 
     @Value("${server.port}")
     private String myPort;
 
+    @HystrixCommand//(fallbackMethod = "queryByIdsFallback")
     @Override
     public GraceJSONResult queryByIds(String userIds) {
+
+//        int a = 1 / 0;
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         System.out.println("myPort= " + myPort);
 
@@ -120,6 +131,15 @@ public class UserController extends BaseController implements UserControllerApi 
 
         List<AppUserVO> publisherList = new ArrayList<>();
         List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
+
+        //FIXME:for dev use only
+        if (userIdList.size() > 1) {
+            System.out.println("Exception!!");
+            throw new RuntimeException("Exception!!");
+        }
+
+
+
         for (String userId : userIdList) {
             // Obtain user's basic info
             AppUserVO userVO = getBasicUserInfo(userId);
@@ -130,6 +150,29 @@ public class UserController extends BaseController implements UserControllerApi 
         }
         return GraceJSONResult.ok(publisherList);
     }
+
+    public GraceJSONResult queryByIdsFallback(String userIds) {
+
+        System.out.println("Hystrix callback method: queryByIdsFallback");
+
+
+        List<AppUserVO> publisherList = new ArrayList<>();
+        List<String> userIdList = JsonUtils.jsonToList(userIds, String.class);
+        for (String userId : userIdList) {
+            // Build an empty object
+            // The user info in detailed page is not necessary
+            AppUserVO userVO = new AppUserVO();
+            publisherList.add(userVO);
+
+        }
+        return GraceJSONResult.ok(publisherList);
+    }
+
+    public GraceJSONResult defaultFallback() {
+        System.out.println("Global circuit break!");
+        return GraceJSONResult.errorCustom(ResponseStatusEnum.SYSTEM_RESPONSE_GLOBAL);
+    }
+
 
     private AppUserVO getBasicUserInfo(String userId) {
         // 1. Query user info by userId

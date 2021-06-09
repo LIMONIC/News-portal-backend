@@ -125,6 +125,8 @@ logging:
 
 # feign configuration
 feign:
+  hystrix:
+    enabled: true  # enable hystrix inside the feign
   client:
     config:
       # Name of service provider
