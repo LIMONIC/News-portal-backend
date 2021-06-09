@@ -26,11 +26,13 @@ public class FriendLinkMngController extends BaseController implements FriendLin
     private FriendLinkService friendLinkService;
 
     @Override
-    public GraceJSONResult saveOrUpdateFriendLink(@Valid SaveFriendLinkBO saveFriendLinkBO, BindingResult result) {
-        if (result.hasErrors()) {
-            Map<String, String> map = getErrors(result);
-            return GraceJSONResult.errorMap(map);
-        }
+    public GraceJSONResult saveOrUpdateFriendLink(@Valid SaveFriendLinkBO saveFriendLinkBO) {
+
+        // ***** The errors are handled by com.site.exception.GraceExceptionHandler.java
+//        if (result.hasErrors()) {
+//            Map<String, String> map = getErrors(result);
+//            return GraceJSONResult.errorMap(map);
+//        }
 
         // copy saveFriendLinkBO to saveFriendLinkMO
         FriendLinkMO saveFriendLinkMO = new FriendLinkMO();

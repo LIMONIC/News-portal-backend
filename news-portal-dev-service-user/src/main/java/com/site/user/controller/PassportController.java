@@ -56,13 +56,14 @@ public class PassportController extends BaseController implements PassportContro
     }
 
     @Override
-    public GraceJSONResult doLogin(RegisterLoginBO registerLoginBO, BindingResult result,
+    public GraceJSONResult doLogin(RegisterLoginBO registerLoginBO,
                                    HttpServletRequest request, HttpServletResponse response) {
+        // ***** The errors are handled by com.site.exception.GraceExceptionHandler.java
         // 0. Check if BindingResult has wrong verification info, if true, return;
-        if (result.hasErrors()) {
-            Map<String, String> map = getErrors(result);
-            return GraceJSONResult.errorMap(map);
-        }
+//        if (result.hasErrors()) {
+//            Map<String, String> map = getErrors(result);
+//            return GraceJSONResult.errorMap(map);
+//        }
 
         String mobile = registerLoginBO.getMobile();
         String smsCode = registerLoginBO.getSmsCode();

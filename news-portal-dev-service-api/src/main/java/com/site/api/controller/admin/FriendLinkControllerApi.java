@@ -19,7 +19,7 @@ import javax.validation.Valid;
 public interface FriendLinkControllerApi {
     @ApiOperation(value = "API for adding / modifying friendship links", notes = "API for adding / modifying friendship links", httpMethod = "POST")
     @PostMapping("/saveOrUpdateFriendLink") // route of the method
-    public GraceJSONResult saveOrUpdateFriendLink(@RequestBody @Valid SaveFriendLinkBO saveFriendLinkBO, BindingResult result);
+    public GraceJSONResult saveOrUpdateFriendLink(@RequestBody @Valid SaveFriendLinkBO saveFriendLinkBO);
 
     @ApiOperation(value = "API for querying the list of friendship links", notes = "API for querying the list of friendship links", httpMethod = "POST")
     @PostMapping("/getFriendLinkList") // route of the method

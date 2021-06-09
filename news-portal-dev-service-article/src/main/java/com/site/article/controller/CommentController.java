@@ -28,13 +28,14 @@ public class CommentController extends BaseController implements CommentControll
     private CommentPortalService commentPortalService;
 
     @Override
-    public GraceJSONResult createComment(CommentReplyBO commentReplyBO, BindingResult result) {
+    public GraceJSONResult createComment(CommentReplyBO commentReplyBO) {
 
+        // ***** The errors are handled by com.site.exception.GraceExceptionHandler.java
         // 0. Check if BindingResult contains any error info，if true, return error.
-        if (result.hasErrors()) {
-            Map<String, String> errorMap = getErrors(result);
-            return GraceJSONResult.errorMap(errorMap);
-        }
+//        if (result.hasErrors()) {
+//            Map<String, String> errorMap = getErrors(result);
+//            return GraceJSONResult.errorMap(errorMap);
+//        }
 
         // 1. Get basic user info based on his id. Those info will be save to comment Sql chart redundantly to avoid
         // the relationship between multiple Sql chart. It improves performance.

@@ -18,8 +18,7 @@ public interface ArticleControllerApi {
 
     @ApiOperation(value = "User posts an article", notes = "User posts an article", httpMethod = "POST")
     @PostMapping("createArticle")
-    public GraceJSONResult createArticle(@RequestBody @Valid NewArticleBO newArticleBO,
-                                                BindingResult result);
+    public GraceJSONResult createArticle(@RequestBody @Valid NewArticleBO newArticleBO);
 
     @ApiOperation(value = "Query all articles posted by current user", notes = "Query all articles posted by current user", httpMethod = "POST")
     @PostMapping("queryMyList")

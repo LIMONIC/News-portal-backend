@@ -51,13 +51,14 @@ public class ArticleController extends BaseController implements ArticleControll
     private ArticleService articleService;
 
     @Override
-    public GraceJSONResult createArticle(@Valid NewArticleBO newArticleBO, BindingResult result) {
+    public GraceJSONResult createArticle(@Valid NewArticleBO newArticleBO) {
 
+        // ***** The errors are handled by com.site.exception.GraceExceptionHandler.java
         // Validate BindingResult, if false, return
-        if (result.hasErrors()) {
-            Map<String, String> errorMap = getErrors(result);
-            return GraceJSONResult.errorMap(errorMap);
-        }
+//        if (result.hasErrors()) {
+//            Map<String, String> errorMap = getErrors(result);
+//            return GraceJSONResult.errorMap(errorMap);
+//        }
 
         // Check article cover type. If cover enabled, cover cannot be empty, otherwise cover is empty.
         if (newArticleBO.getArticleType() == ArticleCoverType.ONE_IMAGE.type) {

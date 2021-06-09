@@ -25,7 +25,7 @@ public interface PassportControllerApi {
     // BO: event from browser. Business Object.
     // result is bind to result
     // @RequestBody means the JSON passed from front end is match with the Object here
-    public GraceJSONResult doLogin(@RequestBody @Valid RegisterLoginBO registerLoginBO, BindingResult result,
+    public GraceJSONResult doLogin(@RequestBody @Valid RegisterLoginBO registerLoginBO,
                                    HttpServletRequest request, HttpServletResponse response);
 
     @ApiOperation(value = "User logout API", notes = "User logout API", httpMethod = "POST")

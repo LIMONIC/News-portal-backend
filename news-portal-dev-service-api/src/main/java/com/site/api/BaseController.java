@@ -54,20 +54,20 @@ public class BaseController {
     @Autowired
     public RestTemplate restTemplate;
 
-
+// ***** This method was added to com.site.exception.GraceExceptionHandler.java
     // get the error info from BO
-    public Map<String, String> getErrors(BindingResult result) {
-        Map<String, String> map = new HashMap<>();
-        List<FieldError> errorList = result.getFieldErrors();
-        for (FieldError error: errorList) {
-            //Some properties that corresponds to a validation error
-            String field = error.getField();
-            // error message
-            String msg = error.getDefaultMessage();
-            map.put(field, msg);
-        }
-        return map;
-    }
+//    public Map<String, String> getErrors(BindingResult result) {
+//        Map<String, String> map = new HashMap<>();
+//        List<FieldError> errorList = result.getFieldErrors();
+//        for (FieldError error: errorList) {
+//            //Some properties that corresponds to a validation error
+//            String field = error.getField();
+//            // error message
+//            String msg = error.getDefaultMessage();
+//            map.put(field, msg);
+//        }
+//        return map;
+//    }
 
     public void setCookie (HttpServletRequest request, HttpServletResponse response,
                            String cookieName, String cookieValue, Integer maxAge) {

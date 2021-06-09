@@ -29,14 +29,14 @@ public class CategoryMngController extends BaseController implements CategoryMng
     private CategoryService categoryService;
 
     @Override
-    public GraceJSONResult saveOrUpdateCategory(@Valid SaveCategoryBO saveCategoryBO,
-                                                BindingResult result) {
+    public GraceJSONResult saveOrUpdateCategory(@Valid SaveCategoryBO saveCategoryBO) {
 
+        // ***** The errors are handled by com.site.exception.GraceExceptionHandler.java
         // Validate BindingResult, if false, return
-        if (result.hasErrors()) {
-            Map<String, String> errorMap = getErrors(result);
-            return GraceJSONResult.errorMap(errorMap);
-        }
+//        if (result.hasErrors()) {
+//            Map<String, String> errorMap = getErrors(result);
+//            return GraceJSONResult.errorMap(errorMap);
+//        }
 
         Category newCat = new Category();
         BeanUtils.copyProperties(saveCategoryBO, newCat);

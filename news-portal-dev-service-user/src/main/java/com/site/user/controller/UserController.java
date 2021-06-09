@@ -91,13 +91,14 @@ public class UserController extends BaseController implements UserControllerApi 
     }
 
     @Override
-    public GraceJSONResult updateUserInfo(UpdateUserInfoBO updateUserInfoBO, BindingResult result) {
-
-        // 0. Check BO
-        if (result.hasErrors()) {
-            Map<String, String> map = getErrors(result);
-            return GraceJSONResult.errorMap(map);
-        }
+    public GraceJSONResult updateUserInfo(UpdateUserInfoBO updateUserInfoBO){
+// ****** The errors are now obtained by MethodArgumentNotValidException in com.site.exception.GraceExceptionHandler.java
+//            , BindingResult result) {
+//        // 0. Check BO
+//        if (result.hasErrors()) {
+//            Map<String, String> map = getErrors(result);
+//            return GraceJSONResult.errorMap(map);
+//        }
 
         // 1. update user info
         userService.updateUserInfo(updateUserInfoBO);

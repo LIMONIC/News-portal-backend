@@ -3,6 +3,7 @@ package com.site.article.controller;
 import com.site.api.BaseController;
 import com.site.api.controller.article.ArticleControllerApi;
 import com.site.api.controller.article.ArticlePortalControllerApi;
+import com.site.api.controller.user.UserControllerApi;
 import com.site.article.service.ArticlePortalService;
 import com.site.article.service.ArticleService;
 import com.site.enums.ArticleCoverType;
@@ -122,9 +123,12 @@ public class ArticlePortalController extends BaseController implements ArticlePo
     @Autowired
     private DiscoveryClient discoveryClient;
 
+    @Autowired
+    private UserControllerApi userControllerApi;
+
     private List<AppUserVO> getPublisherList(Set idSet) {
 
-        String serviceId = "SERVICE-USER";
+//*********** use restTemplate ***********
 //        List<ServiceInstance> instanceList = discoveryClient.getInstances(serviceId);
 //        ServiceInstance userService = instanceList.get(0);
 //        String userServerUrlExecute
@@ -132,17 +136,23 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 //                + ":" + userService.getPort()
 //                + "/user/queryByIds?userIds="
 //                + JsonUtils.objectToJson(idSet);
-        String userServerUrlExecute
-                = "http://" + serviceId
-                + "/user/queryByIds?userIds="
-                + JsonUtils.objectToJson(idSet);
 
+//*********** use eureka ***********
+//        String serviceId = "SERVICE-USER";
+//        String userServerUrlExecute
+//                = "http://" + serviceId
+//                + "/user/queryByIds?userIds="
+//                + JsonUtils.objectToJson(idSet);
+
+//*********** use feign ***********
+        // use url -> use api
+        GraceJSONResult bodyResult = userControllerApi.queryByIds(JsonUtils.objectToJson(idSet));
 
 //        String userServerUrlExecute
 //                = "http://user.inews.com:8003/user/queryByIds?userIds=" + JsonUtils.objectToJson(idSet);
-        ResponseEntity<GraceJSONResult> responseEntity
-                = restTemplate.getForEntity(userServerUrlExecute, GraceJSONResult.class);
-        GraceJSONResult bodyResult = responseEntity.getBody();
+//        ResponseEntity<GraceJSONResult> responseEntity
+//                = restTemplate.getForEntity(userServerUrlExecute, GraceJSONResult.class);
+//        GraceJSONResult bodyResult = responseEntity.getBody();
         List<AppUserVO> publisherList = null;
         if (bodyResult.getStatus() == 200) {
             String userJson = JsonUtils.objectToJson(bodyResult.getData());

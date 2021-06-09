@@ -118,6 +118,15 @@ ribbon:
   # 当请求到某个微服务5s，超时后会进行重试，先重新连接自己当前这个实例，
   # 如果当前实例失败1次后，会切换访问集群中的下一个微服务实例，切换最大2次
 
-#logging:
-#  level:
+logging:
+  level:
+    com.site.api.controller.user.UserControllerApi: debug
 #    root: debug
+
+# feign configuration
+feign:
+  client:
+    config:
+      # Name of service provider
+      service-user:
+        loggerLevel: FULL
