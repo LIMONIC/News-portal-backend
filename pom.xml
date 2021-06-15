@@ -18,6 +18,7 @@
         <module>news-portal-dev-service-article-html</module>
         <module>springcloud-eureka</module>
         <module>springcloud-eureka-cluster</module>
+        <module>springcloud-zuul-server</module>
     </modules>
     <!--
     1. 聚合工程可以分为顶级项目（顶级工程，父工程）与子工程（子module模块），
@@ -61,6 +62,7 @@
 
         <slf4j.version>1.7.21</slf4j.version>
         <joda-time.version>2.10.6</joda-time.version>
+        <springframework-openfeign.version>3.0.3</springframework-openfeign.version>
     </properties>
 
 <!--    用于管理所有的依赖-->
@@ -219,6 +221,12 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${joda-time.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>${springframework-openfeign.version}</version>
             </dependency>
 
         </dependencies>

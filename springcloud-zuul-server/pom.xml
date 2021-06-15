@@ -9,29 +9,30 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>news-portal-dev-service-admin</artifactId>
+    <artifactId>springcloud-zuul-server</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.site</groupId>
             <artifactId>news-portal-dev-service-api</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-openfeign</artifactId>
-                </exclusion>
-            </exclusions>
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.springframework.cloud</groupId>-->
+<!--                    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
         </dependency>
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>2.2.2.RELEASE</version>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+            <version>2.2.8.RELEASE</version>
         </dependency>
 
-    </dependencies>
 
+    </dependencies>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

@@ -19,11 +19,11 @@ public interface UserControllerApi {
     @ApiOperation(value = "Get user basic info", notes = "Get user basic info", httpMethod = "POST")
     @PostMapping("/getUserInfo")
     // HttpServletRequest: get ip address
-    public GraceJSONResult getUserInfo(@RequestParam String userId);
+    public GraceJSONResult getUserInfo(@RequestParam(name="userId") String userId);
 
     @ApiOperation(value = "Get user account info", notes = "Get user account info", httpMethod = "POST")
     @PostMapping("/getAccountInfo")
-    public GraceJSONResult getAccountInfo(@RequestParam String userId);
+    public GraceJSONResult getAccountInfo(@RequestParam(name="userId") String userId);
 
 //    @ApiOperation(value = "Update user info", notes = "Update user info", httpMethod = "POST")
 //    @PostMapping("/updateUserInfo")
@@ -42,5 +42,5 @@ public interface UserControllerApi {
 
     @ApiOperation(value = "Query user list base on user ids", notes = "Query user list base on user ids", httpMethod = "GET")
     @GetMapping("/queryByIds")
-    public GraceJSONResult queryByIds(@RequestParam String userIds);
+    public GraceJSONResult queryByIds(@RequestParam(name="userIds") String userIds);
 }

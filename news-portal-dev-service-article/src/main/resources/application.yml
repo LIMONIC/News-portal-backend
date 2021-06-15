@@ -125,7 +125,7 @@ logging:
 
 # feign configuration
 feign:
-  hystrix:
+  circuitbreaker:
     enabled: true  # enable hystrix inside the feign
   client:
     config:

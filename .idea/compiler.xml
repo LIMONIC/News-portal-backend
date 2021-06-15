@@ -13,6 +13,7 @@
         <module name="news-portal-dev-service-article-html" />
         <module name="springcloud-eureka-cluster" />
         <module name="mybatis-generator-database" />
+        <module name="springcloud-zuul-server" />
         <module name="news-portal-dev-service-files" />
         <module name="news-portal-dev-service-admin" />
         <module name="news-portal-dev-model" />
@@ -32,6 +33,7 @@
       <module name="news-portal-dev-service-user" options="-parameters" />
       <module name="springcloud-eureka" options="-parameters" />
       <module name="springcloud-eureka-cluster" options="-parameters" />
+      <module name="springcloud-zuul-server" options="-parameters" />
     </option>
   </component>
 </project>
