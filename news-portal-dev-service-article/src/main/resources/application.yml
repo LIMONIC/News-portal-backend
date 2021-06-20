@@ -125,10 +125,12 @@ logging:
 
 # feign configuration
 feign:
-  circuitbreaker:
-    enabled: true  # enable hystrix inside the feign
+#  circuitbreaker:
+#    enabled: true  # enable hystrix inside the feign
   client:
     config:
       # Name of service provider
       service-user:
         loggerLevel: FULL
+  hystrix:
+    enabled: true # enable hystrix inside the feign

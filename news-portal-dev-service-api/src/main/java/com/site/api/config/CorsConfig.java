@@ -16,7 +16,7 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         // 1. 添加cors配置信息
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*");
+        config.addAllowedOrigin("*");
         // 设置是否发送cookie信息
         config.setAllowCredentials(true);
         // 设置允许请求的方式

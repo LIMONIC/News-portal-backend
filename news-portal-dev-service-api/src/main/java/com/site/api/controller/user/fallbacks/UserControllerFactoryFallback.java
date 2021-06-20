@@ -5,8 +5,10 @@ import com.site.grace.result.GraceJSONResult;
 import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.bo.UpdateUserInfoBO;
 import com.site.pojo.vo.AppUserVO;
-import org.springframework.cloud.openfeign.FallbackFactory;
+//import org.springframework.cloud.openfeign.FallbackFactory;
+import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
+
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.site.article;
 
-import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
@@ -18,7 +18,7 @@ public class GridFSConfig {
     public GridFSBucket gridFSBucket(MongoClient mongoClient) {
         MongoDatabase mongoDatabase = mongoClient.getDatabase(mongodb);
         GridFSBucket bucket = GridFSBuckets.create(mongoDatabase);
-
         return bucket;
     }
+
 }
