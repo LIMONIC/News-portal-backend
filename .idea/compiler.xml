@@ -6,17 +6,18 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="news-portal-dev-service-user" />
+        <module name="mybatis-generator-database" />
+        <module name="news-portal-dev-service-admin" />
+        <module name="springcloud-config" />
+        <module name="news-portal-dev-model" />
         <module name="news-portal-dev-common" />
         <module name="news-portal-dev-service-api" />
-        <module name="news-portal-dev-service-user" />
         <module name="springcloud-eureka" />
         <module name="news-portal-dev-service-article-html" />
         <module name="springcloud-eureka-cluster" />
-        <module name="mybatis-generator-database" />
         <module name="springcloud-zuul-server" />
         <module name="news-portal-dev-service-files" />
-        <module name="news-portal-dev-service-admin" />
-        <module name="news-portal-dev-model" />
         <module name="news-portal-dev-service-article" />
       </profile>
     </annotationProcessing>
@@ -31,6 +32,7 @@
       <module name="news-portal-dev-service-article-html" options="-parameters" />
       <module name="news-portal-dev-service-files" options="-parameters" />
       <module name="news-portal-dev-service-user" options="-parameters" />
+      <module name="springcloud-config" options="-parameters" />
       <module name="springcloud-eureka" options="-parameters" />
       <module name="springcloud-eureka-cluster" options="-parameters" />
       <module name="springcloud-zuul-server" options="-parameters" />

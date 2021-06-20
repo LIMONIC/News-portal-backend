@@ -19,6 +19,7 @@
         <module>springcloud-eureka</module>
         <module>springcloud-eureka-cluster</module>
         <module>springcloud-zuul-server</module>
+        <module>springcloud-config</module>
     </modules>
     <!--
     1. 聚合工程可以分为顶级项目（顶级工程，父工程）与子工程（子module模块），
@@ -77,6 +78,13 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-config-server</artifactId>
+                <version>2.2.2.RELEASE</version>
+            </dependency>
+
             <!-- SpringCloud 依赖 -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
