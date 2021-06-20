@@ -65,10 +65,10 @@ eureka:
 # Routing config: http://[gateway address]:[port]/[prefix]/[service id]/[request path]
 zuul:
   routes:
-#    service-article: /service-article/** # -> Simplify the following config
-     service-article:                # Router id，Service id
-        path: /service-article/**     # Request path(prefix)，match with：localhost:6000/article-service/abc
-        service-id: service-article # service id that will be forwarded by zuul
+    service-article: /service-article/** # -> Simplify the following config
+#     service-article:                # Router id，Service id
+#        path: /service-article/**     # Request path(prefix)，match with：localhost:6000/article-service/abc
+#        service-id: service-article # service id that will be forwarded by zuul
 #        url: http://192.168.0.166:8001   # forward request from above path to this ip address
   prefix: /api  # prefix
 
@@ -78,8 +78,8 @@ zuul:
 #  semaphore:
 #    max-semaphores: 200
 
-# ip请求限制的参数配置
-#blackIp:
-#  continueCounts: ${counts:10}    # ip连续请求的次数
-#  timeInterval: ${interval:10}    # ip判断的事件间隔，单位：秒
-#  limitTimes: ${times:15}         # 限制的事件，单位：秒
+# ip filtering configuration
+blackIp:
+  continueCounts: ${counts:10}    # ip connection request time
+  timeInterval: ${interval:10}    # ip time interval. second
+  limitTimes: ${times:15}         # block time. second

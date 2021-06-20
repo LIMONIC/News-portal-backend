@@ -71,7 +71,8 @@ public enum ResponseStatusEnum {
     SYSTEM_OPERATION_ERROR(556, false, "操作失败，请重试或联系管理员"),
     SYSTEM_RESPONSE_NO_INFO(557, false, ""),
     SYSTEM_RESPONSE_GLOBAL(558, false, "Global circuit broken: System busy, please try again later!"),
-    SYSTEM_RESPONSE_FEIGN(559, false, "Client feign circuit broken: System busy, please try again later!");
+    SYSTEM_RESPONSE_FEIGN(559, false, "Client feign circuit broken: System busy, please try again later!"),
+    SYSTEM_RESPONSE_ZUUL(560, false, "Number of requests exceeded limit. Please try again later!");
 
 
     // 响应业务状态
