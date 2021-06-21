@@ -1,6 +1,5 @@
 ############################################################
 #
-# Global Configuration
 # Zuul config
 #
 ############################################################
@@ -31,6 +30,12 @@ spring:
       discovery:
         service-id: springcloud-config
         enabled: true
+  rabbitmq:
+    host: 192.168.137.103
+    port: 5672
+    username: ztyadmin
+    password: UQZDAt3APUAg
+    virtual-host: inews-dev
 
 ############################################################
 #
@@ -64,16 +69,8 @@ zuul:
 #        url: http://192.168.0.166:8001   # forward request from above path to this ip address
   prefix: /api  # prefix
 
-# Dynamically refresh configuration from git
-
-
-#  host:
-#    max-total-connections: 10000
-#    max-per-route-connections: 60000
-#  semaphore:
-#    max-semaphores: 200
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh
+# ip filtering configuration
+blackIp:
+  continueCounts: ${counts:10}    # ip connection request time
+  timeInterval: ${interval:10}    # ip time interval. second
+  limitTimes: ${times:15}         # block time. second

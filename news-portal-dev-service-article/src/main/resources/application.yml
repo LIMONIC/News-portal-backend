@@ -52,6 +52,16 @@ spring:
     username: ztyadmin
     password: UQZDAt3APUAg
     virtual-host: inews-dev
+  cloud:
+    stream:
+      bindings:                             # bind channel and exchangers
+        myOutput:                           # provider's channel
+          # Customize exchanger's name. Messages in the code will be passed to mq exchangers
+          destination: streamExchange
+        myInput: # consumer's channel
+          # Customize exchanger's name. MQ passes message from provider to consumer
+          destination: streamExchange
+          group: boys
 
 ############################################################
 #

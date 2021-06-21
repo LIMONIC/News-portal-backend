@@ -3,6 +3,7 @@ package com.site.article.controller;
 import com.site.api.config.RabbitMQConfig;
 import com.site.api.config.RabbitMQDelayConfig;
 import com.site.api.controller.user.HelloControllerApi;
+import com.site.article.stream.StreamService;
 import com.site.grace.result.GraceJSONResult;
 import com.site.utils.RedisOperator;
 import org.slf4j.Logger;
@@ -27,6 +28,9 @@ public class HelloController implements HelloControllerApi {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private StreamService streamService;
 
 //    @GetMapping("/hello")
 //    public Object hello() {
@@ -61,5 +65,15 @@ public class HelloController implements HelloControllerApi {
         rabbitTemplate.convertAndSend(RabbitMQDelayConfig.EXCHANGE_DELAY, "delay.demo", "This is a delayed message", messagePostProcessor);
         System.out.println("Producer time: " + new Date());
         return "OK";
+    }
+
+    @GetMapping("/stream")
+    public Object stream() {
+//        streamService.sendMsg();
+
+        for (int i = 0; i < 10; i ++) {
+            streamService.sendMsgToGroup("No.:" + ( i + 1 ));
+        }
+        return "ok!!";
     }
 }
