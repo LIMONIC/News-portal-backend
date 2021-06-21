@@ -10,6 +10,7 @@ import com.site.utils.JsonUtils;
 import com.site.utils.RedisOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 
 // Set custom zuul filters
 @Component
+@RefreshScope
 public class BlackIpFilter extends ZuulFilter {
 
     @Value("${blackIp.continueCounts}")
@@ -49,6 +51,10 @@ public class BlackIpFilter extends ZuulFilter {
     @Override
     public Object run() throws ZuulException {
         System.out.println("Execute ip filter for black list...");
+        System.out.println("continueCounts: " + continueCounts);
+        System.out.println("timeInterval: " + timeInterval);
+        System.out.println("limitTimes: " + limitTimes);
+
         // Obtain context
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
