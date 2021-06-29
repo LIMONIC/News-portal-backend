@@ -41,3 +41,20 @@ fdfs:
   so-timeout: 30        # 读取的超时时间
   # TODO 修改生成环境的
   tracker-list: 192.168.137.101:22122   # tracker服务所在的ip地址和端口号
+
+############################################################
+#
+# eureka client configuration
+#
+############################################################
+eureka:
+  # Customized eureka server info
+  server:
+    hostname: eureka
+    port: 7000
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      #      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/
+      defaultZone:  http://eureka-cluster-7001:7001/eureka/,http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/

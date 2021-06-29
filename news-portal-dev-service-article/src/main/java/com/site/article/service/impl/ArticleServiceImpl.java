@@ -18,10 +18,8 @@ import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Article;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
-import com.site.pojo.vo.ArticleDetailVO;
-import com.site.utils.DateUtil;
+import com.site.pojo.eo.ArticleEO;
 import com.site.utils.PagedGridResult;
-import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.n3r.idworker.Sid;
@@ -29,10 +27,12 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.core.MessagePostProcessor;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,10 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class ArticleServiceImpl extends BaseService implements ArticleService {
@@ -56,6 +54,9 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
 
     @Autowired
     private Sid sid;
+
+    @Autowired
+    private ElasticsearchTemplate esTemplate;
 
     @Transactional
     @Override
@@ -144,9 +145,22 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
         pendingArticle.setArticleStatus(pendingStatus);
 
         int  res = articleMapper.updateByExampleSelective(pendingArticle, example);
-
         if (res != 1) {
             GraceException.display(ResponseStatusEnum.ARTICLE_REVIEW_ERROR);
+        }
+
+        // If passed check, quary article and store article info into es.
+        if (pendingStatus == ArticleReviewStatus.SUCCESS.type){
+            Article result =  articleMapper.selectByPrimaryKey(articleId);
+            // if the article is posted to be published immediately, save the article into es after content check.
+            if (result.getIsAppoint() == ArticleAppointType.IMMEDIATELY.type){
+                ArticleEO articleEO = new ArticleEO();
+                BeanUtils.copyProperties(result, articleEO); // they hace common properties in common
+                IndexQuery iq = new IndexQueryBuilder().withObject(articleEO).build();
+                esTemplate.index(iq);
+            }
+            // If the article post time has a postponed time, it won't be send to es here.
+            // The article will be send to the postponed queue
         }
 
     }
@@ -259,6 +273,8 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
             GraceException.display(ResponseStatusEnum.ARTICLE_DELETE_ERROR);
         }
         deleteHTML(articleId);
+
+        esTemplate.delete(ArticleEO.class, articleId);
     }
 
     @Autowired
@@ -269,6 +285,10 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
     private void deleteHTML(String articleId) {
         // 1. Query article's mongoFileId
         Article pending = articleMapper.selectByPrimaryKey(articleId);
+        if (StringUtils.isBlank(pending.getMongoFileId())) {
+            return;
+        }
+
         String articleMongoId = pending.getMongoFileId();
 
         // 2. Delete static html in GridFS
@@ -310,6 +330,7 @@ public class ArticleServiceImpl extends BaseService implements ArticleService {
             GraceException.display(ResponseStatusEnum.ARTICLE_WITHDRAW_ERROR);
         }
         deleteHTML(articleId);
+        esTemplate.delete(ArticleEO.class, articleId);
     }
 
     private Example makeExampleCriteria(String userId, String articleId) {

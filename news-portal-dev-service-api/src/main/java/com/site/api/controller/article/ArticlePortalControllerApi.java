@@ -12,14 +12,23 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("portal/article")
 public interface ArticlePortalControllerApi {
 
-    @GetMapping("list")
-    @ApiOperation(value = "[Homepage] Query article list", notes = "[Homepage] Query article list", httpMethod = "GET")
-    public GraceJSONResult list(@RequestParam String keyword,
+    @GetMapping("es/list")
+    @ApiOperation(value = "[Homepage] Query article list from es", notes = "[Homepage] Query article list from es", httpMethod = "GET")
+    public GraceJSONResult eslist(@RequestParam String keyword,
                                         @RequestParam(required = false) Integer category,
                                         @ApiParam(name = "page", value = "page number", required = false)
                                         @RequestParam Integer page,
                                         @ApiParam(name = "pageSize", value = "Item number on each pages", required = false)
                                         @RequestParam Integer pageSize);
+
+    @GetMapping("list")
+    @ApiOperation(value = "[Homepage] Query article list", notes = "[Homepage] Query article list", httpMethod = "GET")
+    public GraceJSONResult list(@RequestParam String keyword,
+                                @RequestParam(required = false) Integer category,
+                                @ApiParam(name = "page", value = "page number", required = false)
+                                @RequestParam Integer page,
+                                @ApiParam(name = "pageSize", value = "Item number on each pages", required = false)
+                                @RequestParam Integer pageSize);
 
     @GetMapping("hotList")
     @ApiOperation(value = "[Homepage] Query the list of hot news", notes = "[Homepage] Query the list of hot news", httpMethod = "GET")

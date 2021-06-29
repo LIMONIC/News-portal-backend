@@ -14,6 +14,7 @@ import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.Article;
 import com.site.pojo.Category;
 import com.site.pojo.bo.NewArticleBO;
+import com.site.pojo.eo.ArticleEO;
 import com.site.pojo.vo.AppUserVO;
 import com.site.pojo.vo.ArticleDetailVO;
 import com.site.pojo.vo.IndexArticleVO;
@@ -21,12 +22,21 @@ import com.site.utils.IPUtil;
 import com.site.utils.JsonUtils;
 import com.site.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +57,50 @@ public class ArticlePortalController extends BaseController implements ArticlePo
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private ElasticsearchTemplate esTemplate;
+
+    @Override
+    public GraceJSONResult eslist(String keyword, Integer category, Integer page, Integer pageSize) {
+
+        /*
+        * ES query:
+        *   1. query on homepage, without any parameter
+        *   2. quary by article category
+        *   3. query by key works of article title
+        * */
+
+        // page number of es is counted from 0.
+        if (page < 1) return null;
+        page--;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        SearchQuery query = null;
+        // match case 1:
+        if (StringUtils.isBlank(keyword) && category == null) {
+            query = new NativeSearchQueryBuilder().withQuery(QueryBuilders.matchAllQuery())
+                    .withPageable(pageable)
+                    .build();
+        }
+        // match case 2:
+        if (StringUtils.isBlank(keyword) && category != null) {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.termQuery("categoryId", category))
+                    .withPageable(pageable)
+                    .build();
+        }
+        // match case 3:
+        if (StringUtils.isNotBlank(keyword) && category == null) {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.matchQuery("title", keyword))
+                    .withPageable(pageable)
+                    .build();
+        }
+
+        AggregatedPage<ArticleEO> pagedArticle =  esTemplate.queryForPage(query, ArticleEO.class);
+        List<ArticleEO> articleList = pagedArticle.getContent();
+        return GraceJSONResult.ok(articleList);
+    }
 
     @Override
     public GraceJSONResult list(String keyword, Integer category, Integer page, Integer pageSize) {

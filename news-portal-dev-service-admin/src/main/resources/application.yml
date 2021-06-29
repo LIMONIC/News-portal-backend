@@ -65,3 +65,23 @@ mapper:
 pagehelper:
   helperDialect: mysql
   supportMethodsArguments: true
+
+############################################################
+#
+# eureka client configuration
+#
+############################################################
+eureka:
+  # Customized eureka server info
+  server:
+    hostname: eureka
+    port: 7000
+  client:
+    # All microservice needs to register to eureka
+    register-with-eureka: true
+    # Get service from eureka registration center
+    fetch-registry: true
+    # Address of the registration center
+    service-url:
+      #      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/
+      defaultZone: http://eureka-cluster-7001:7001/eureka/,http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/
