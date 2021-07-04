@@ -9,6 +9,7 @@ import com.site.grace.result.ResponseStatusEnum;
 import com.site.pojo.AppUser;
 import com.site.pojo.Fans;
 import com.site.pojo.bo.UpdateUserInfoBO;
+import com.site.pojo.eo.FansEO;
 import com.site.pojo.vo.RegionRatioVO;
 import com.site.user.mapper.AppUserMapper;
 import com.site.user.mapper.FansMapper;
@@ -16,16 +17,21 @@ import com.site.user.service.MyFanService;
 import com.site.user.service.UserService;
 import com.site.utils.*;
 import org.checkerframework.checker.units.qual.A;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MyFanServiceImpl extends BaseService implements MyFanService {
@@ -38,6 +44,9 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
 
     @Autowired
     private Sid sid;
+
+    @Autowired
+    private ElasticsearchTemplate esTemplate;
 
     @Override
     public boolean isFollowThisWriter(String writerId, String fanId) {
@@ -75,6 +84,12 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         redis.increment(REDIS_WRITER_FANS_COUNTS + ":" + writerId, 1);
         // Redis: increment the number of following for current user
         redis.increment(REDIS_MY_FOLLOW_COUNTS + ":" + fanId, 1);
+        // Save fans info to ES
+        FansEO fansEO = new FansEO();
+        BeanUtils.copyProperties(fans, fansEO);
+        IndexQuery iq = new IndexQueryBuilder().withObject(fansEO).build();
+        esTemplate.index(iq);
+
     }
 
     @Transactional
@@ -91,6 +106,11 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         redis.increment(REDIS_WRITER_FANS_COUNTS + ":" + writerId, -1);
         // Redis: decrement the number of following for current user
         redis.increment(REDIS_MY_FOLLOW_COUNTS + ":" + fanId, -1);
+        // ES: Delete fans info in es. DeleteQuery: delete item by conditions.
+        DeleteQuery dq = new DeleteQuery();
+        dq.setQuery(QueryBuilders.termQuery("writerId", writerId));
+        dq.setQuery(QueryBuilders.termQuery("fanId", fanId));
+        esTemplate.delete(dq, FansEO.class);
     }
 
     @Override
@@ -103,6 +123,24 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         List<Fans> list = fansMapper.select(fans);
 
         return setterPagedGrid(list, page);
+    }
+
+    @Override
+    public PagedGridResult queryMyFansESList(String writerId, Integer page, Integer pageSize) {
+        page --;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        SearchQuery query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.termQuery("writerId", writerId))
+                .withPageable(pageable)
+                .build();
+        AggregatedPage<FansEO> pagedFans = esTemplate.queryForPage(query, FansEO.class);
+        PagedGridResult gridResult = new PagedGridResult();
+        gridResult.setRows(pagedFans.getContent());
+        gridResult.setPage(page + 1);
+        gridResult.setTotal(pagedFans.getTotalPages());
+        gridResult.setRecords(pagedFans.getTotalElements());
+
+        return gridResult;
     }
 
     @Override
@@ -140,5 +178,39 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         }
 
         return list;
+    }
+
+    @Override
+    public void forceUpdateFanInfo(String relationId, String fanId) {
+        // 1. Query the latest info of the user by fanId
+        AppUser user = userService.getUser(fanId);
+
+        // 2. update user info to db and es
+        Fans fans = new Fans();
+        fans.setId(relationId);
+
+        fans.setFace(user.getFace());
+        fans.setFanNickname(user.getNickname());
+        fans.setSex(user.getSex());
+        fans.setProvince(user.getProvince());
+
+        fansMapper.updateByPrimaryKey(fans);
+
+        // 3. Update info to ES
+        Map<String, Object> updateMap = new HashMap<>();
+        updateMap.put("face", user.getFace());
+        updateMap.put("fanNickname", user.getNickname());
+        updateMap.put("sex", user.getSex());
+        updateMap.put("province", user.getProvince());
+
+        IndexRequest ir = new IndexRequest();
+        ir.source(updateMap);
+        UpdateQuery uq = new UpdateQueryBuilder()
+                .withClass(FansEO.class)
+                .withId(relationId)
+                .withIndexRequest(ir)
+                .build();
+
+        esTemplate.update(uq);
     }
 }

@@ -63,9 +63,14 @@ public class MyFansController extends BaseController implements MyFansController
             pageSize = COMMON_PAGE_SIZE;
         }
 
-        return GraceJSONResult.ok(myFanService.queryMyFansList(writerId,
-                                    page,
-                                    pageSize));
+        // query info from database
+//        return GraceJSONResult.ok(myFanService.queryMyFansList(writerId,
+//                                    page,
+//                                    pageSize));
+        // query info from es
+        return GraceJSONResult.ok(myFanService.queryMyFansESList(writerId,
+                page,
+                pageSize));
     }
 
     @Override
@@ -85,5 +90,13 @@ public class MyFansController extends BaseController implements MyFansController
     public GraceJSONResult queryRatioByRegion(String writerId) {
         return GraceJSONResult.ok(myFanService
                 .queryRegionRatioCounts(writerId));
+    }
+
+    @Override
+    public GraceJSONResult forceUpdateFanInfo(String relationId, String fanId) {
+
+
+
+        return null;
     }
 }

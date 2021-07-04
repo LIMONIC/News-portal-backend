@@ -22,8 +22,14 @@ import com.site.utils.IPUtil;
 import com.site.utils.JsonUtils;
 import com.site.utils.PagedGridResult;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -33,7 +39,9 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
@@ -76,11 +84,13 @@ public class ArticlePortalController extends BaseController implements ArticlePo
         page--;
         Pageable pageable = PageRequest.of(page, pageSize);
         SearchQuery query = null;
+        AggregatedPage<ArticleEO> pagedArticle = null;
         // match case 1:
         if (StringUtils.isBlank(keyword) && category == null) {
             query = new NativeSearchQueryBuilder().withQuery(QueryBuilders.matchAllQuery())
                     .withPageable(pageable)
                     .build();
+            pagedArticle =  esTemplate.queryForPage(query, ArticleEO.class);
         }
         // match case 2:
         if (StringUtils.isBlank(keyword) && category != null) {
@@ -88,18 +98,91 @@ public class ArticlePortalController extends BaseController implements ArticlePo
                     .withQuery(QueryBuilders.termQuery("categoryId", category))
                     .withPageable(pageable)
                     .build();
+            pagedArticle =  esTemplate.queryForPage(query, ArticleEO.class);
         }
         // match case 3:
+//        if (StringUtils.isNotBlank(keyword) && category == null) {
+//            query = new NativeSearchQueryBuilder()
+//                    .withQuery(QueryBuilders.matchQuery("title", keyword))
+//                    .withPageable(pageable)
+//                    .build();
+//        }
+        // match case 3: highlight the keywords
+        String searchTitleField = "title";
         if (StringUtils.isNotBlank(keyword) && category == null) {
+            String preTag = "<font color='red'>";
+            String postTag = "</font>";
             query = new NativeSearchQueryBuilder()
-                    .withQuery(QueryBuilders.matchQuery("title", keyword))
+                    .withQuery(QueryBuilders.matchQuery(searchTitleField, keyword))
+                    .withHighlightFields(new HighlightBuilder.Field(searchTitleField)
+                        .preTags(preTag)
+                        .postTags(postTag))
                     .withPageable(pageable)
                     .build();
+            pagedArticle = esTemplate.queryForPage(query, ArticleEO.class, new SearchResultMapper() {
+                @Override
+                public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                    List<ArticleEO> articleHighLightList = new ArrayList<>();
+                    // Obtain query result set
+                    SearchHits hits = searchResponse.getHits();
+                    for (SearchHit h : hits) {
+                        HighlightField highlightField = h.getHighlightFields().get(searchTitleField);
+                        String title = highlightField.getFragments()[0].toString();
+
+                        // Obtain all other fragments, and re-encapsulate with highlighted contents.
+                        String articleId = (String)h.getSourceAsMap().get("id");
+                        Integer categoryId = (Integer)h.getSourceAsMap().get("categoryId");
+                        Integer articleType = (Integer)h.getSourceAsMap().get("articleType");
+                        String articleCover = (String)h.getSourceAsMap().get("articleCover");
+                        String publishUserId = (String)h.getSourceAsMap().get("publishUserId");
+                        Long dateLong = (Long)h.getSourceAsMap().get("publishTime");
+                        Date publishTime = new Date(dateLong);
+
+                        ArticleEO articleEO = new ArticleEO();
+                        articleEO.setId(articleId);
+                        articleEO.setTitle(title);
+                        articleEO.setCategoryId(categoryId);
+                        articleEO.setArticleType(articleType);
+                        articleEO.setArticleCover(articleCover);
+                        articleEO.setPublishUserId(publishUserId);
+                        articleEO.setPublishTime(publishTime);
+
+                        articleHighLightList.add(articleEO);
+
+                    }
+
+                    return new AggregatedPageImpl<>((List<T>)articleHighLightList,
+                            pageable,
+                            searchResponse.getHits().totalHits);
+
+                }
+
+                @Override
+                public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
+                    return null;
+                }
+            });
         }
 
-        AggregatedPage<ArticleEO> pagedArticle =  esTemplate.queryForPage(query, ArticleEO.class);
-        List<ArticleEO> articleList = pagedArticle.getContent();
-        return GraceJSONResult.ok(articleList);
+        // Reorganize article list
+//        AggregatedPage<ArticleEO> pagedArticle =  esTemplate.queryForPage(query, ArticleEO.class);
+        List<ArticleEO> articleEOList = pagedArticle.getContent();
+        List<Article> articleList = new ArrayList<>();
+        for (ArticleEO a : articleEOList) {
+            Article article = new Article();
+            BeanUtils.copyProperties(a, article);
+            articleList.add(article);
+        }
+        // re-encapsulate to grid format
+        PagedGridResult gridResult = new PagedGridResult();
+        gridResult.setRows(articleList);
+        gridResult.setPage(page + 1);
+        gridResult.setTotal(pagedArticle.getTotalPages());
+        gridResult.setRecords(pagedArticle.getTotalElements());
+
+        gridResult = rebuildArticleGrid(gridResult);
+
+        return GraceJSONResult.ok(gridResult);
     }
 
     @Override

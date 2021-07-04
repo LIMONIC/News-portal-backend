@@ -25,9 +25,16 @@ public interface MyFanService {
     public void unfollow(String writerId, String fanId);
 
     /**
-     * Query the list of followers
+     * Query the list of followers from database
      */
     public PagedGridResult queryMyFansList(String writerId,
+                                           Integer page,
+                                           Integer pageSize);
+
+    /**
+     * Query the list of followers from ES
+     */
+    public PagedGridResult queryMyFansESList(String writerId,
                                            Integer page,
                                            Integer pageSize);
 
@@ -40,4 +47,9 @@ public interface MyFanService {
      * get fans number by region
      */
     public List<RegionRatioVO> queryRegionRatioCounts(String writerId);
+
+    /**
+     * passive update user's fan info
+     */
+    public void forceUpdateFanInfo(String relationId, String fanId);
 }

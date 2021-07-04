@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("fans")
 public interface MyFansControllerApi {
 
+
+    @ApiOperation(value = "Passive update of fan's information", notes = "Passive update of fan's information", httpMethod = "POST")
+    @PostMapping("/forceUpdateFanInfo")
+    public GraceJSONResult forceUpdateFanInfo(@RequestParam String relationId,
+                                              @RequestParam String fanId);
+
     @ApiOperation(value = "Check if current user is followed the author", notes = "Check if current user is followed the author", httpMethod = "POST")
     @PostMapping("/isMeFollowThisWriter")
     public GraceJSONResult isFollowThisWriter(@RequestParam String writerId,
