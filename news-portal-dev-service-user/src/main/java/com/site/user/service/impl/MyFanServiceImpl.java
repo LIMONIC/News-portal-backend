@@ -194,7 +194,7 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         fans.setSex(user.getSex());
         fans.setProvince(user.getProvince());
 
-        fansMapper.updateByPrimaryKey(fans);
+        fansMapper.updateByPrimaryKeySelective(fans);
 
         // 3. Update info to ES
         Map<String, Object> updateMap = new HashMap<>();

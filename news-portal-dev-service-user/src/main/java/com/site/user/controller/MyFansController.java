@@ -94,9 +94,7 @@ public class MyFansController extends BaseController implements MyFansController
 
     @Override
     public GraceJSONResult forceUpdateFanInfo(String relationId, String fanId) {
-
-
-
-        return null;
+        myFanService.forceUpdateFanInfo(relationId, fanId);
+        return GraceJSONResult.ok();
     }
 }
