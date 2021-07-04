@@ -1,6 +1,7 @@
 package com.site.user.service;
 
 import com.site.enums.Sex;
+import com.site.pojo.vo.FansCountsVO;
 import com.site.pojo.vo.RegionRatioVO;
 import com.site.utils.PagedGridResult;
 
@@ -42,11 +43,13 @@ public interface MyFanService {
      * get fans number by gender
      */
     public Integer queryFansCounts(String writerId, Sex sex);
+    public FansCountsVO queryFansESCounts(String writerId);
 
     /**
      * get fans number by region
      */
     public List<RegionRatioVO> queryRegionRatioCounts(String writerId);
+    public List<RegionRatioVO> queryRegionRatioESCounts(String writerId);
 
     /**
      * passive update user's fan info

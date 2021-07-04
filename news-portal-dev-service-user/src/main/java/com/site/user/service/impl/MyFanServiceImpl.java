@@ -10,6 +10,7 @@ import com.site.pojo.AppUser;
 import com.site.pojo.Fans;
 import com.site.pojo.bo.UpdateUserInfoBO;
 import com.site.pojo.eo.FansEO;
+import com.site.pojo.vo.FansCountsVO;
 import com.site.pojo.vo.RegionRatioVO;
 import com.site.user.mapper.AppUserMapper;
 import com.site.user.mapper.FansMapper;
@@ -18,13 +19,20 @@ import com.site.user.service.UserService;
 import com.site.utils.*;
 import org.checkerframework.checker.units.qual.A;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
@@ -154,6 +162,85 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
         return count;
     }
 
+    @Override
+    public FansCountsVO queryFansESCounts(String writerId) {
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms("sex_counts")
+                .field("sex");
+
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchQuery("writerId", writerId))
+                .addAggregation(aggregationBuilder)
+                .build();
+
+        Aggregations aggs = esTemplate.query(searchQuery, new ResultsExtractor<Aggregations>() {
+            @Override
+            public Aggregations extract(SearchResponse searchResponse) {
+                return searchResponse.getAggregations();
+            }
+        });
+
+        Map aggMap = aggs.asMap();
+        LongTerms longTerms = (LongTerms)aggMap.get("sex_counts");
+        List bucketList = longTerms.getBuckets();
+        FansCountsVO fansCountsVO = new FansCountsVO();
+
+        for (int i = 0; i < bucketList.size(); i++) {
+            LongTerms.Bucket bucket = (LongTerms.Bucket)bucketList.get(i);
+            Long docCount = bucket.getDocCount();
+            Long key = (Long)bucket.getKey();
+
+            if (key.intValue() == Sex.woman.type) {
+                fansCountsVO.setWomanCounts(docCount.intValue());
+            } else if (key.intValue() == Sex.man.type) {
+                fansCountsVO.setManCounts(docCount.intValue());
+            }
+        }
+        if (bucketList == null || bucketList.size() == 0) {
+            fansCountsVO.setManCounts(0);
+            fansCountsVO.setWomanCounts(0);
+        }
+
+        return fansCountsVO;
+    }
+
+    @Override
+    public List<RegionRatioVO> queryRegionRatioESCounts(String writerId) {
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms("region_counts")
+                .field("province");
+
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchQuery("writerId", writerId))
+                .addAggregation(aggregationBuilder)
+                .build();
+
+        Aggregations aggs = esTemplate.query(searchQuery, new ResultsExtractor<Aggregations>() {
+            @Override
+            public Aggregations extract(SearchResponse searchResponse) {
+                return searchResponse.getAggregations();
+            }
+        });
+
+        Map aggMap = aggs.asMap();
+        StringTerms strTerms = (StringTerms)aggMap.get("region_counts");
+        List bucketList = strTerms.getBuckets();
+
+        List<RegionRatioVO> list = new ArrayList<>();
+        for (int i = 0; i < bucketList.size(); i++) {
+            StringTerms.Bucket bucket = (StringTerms.Bucket)bucketList.get(i);
+            Long docCount = bucket.getDocCount();
+            String key = (String)bucket.getKey();
+            RegionRatioVO regionRatioVO = new RegionRatioVO();
+            regionRatioVO.setName(key);
+            regionRatioVO.setValue(docCount.intValue());
+
+            list.add(regionRatioVO);
+        }
+
+        return list;
+    }
+
     public static final String[] regions = {"北京", "天津", "上海", "重庆",
             "河北", "山西", "辽宁", "吉林", "黑龙江", "江苏", "浙江", "安徽", "福建", "江西", "山东",
             "河南", "湖北", "湖南", "广东", "海南", "四川", "贵州", "云南", "陕西", "甘肃", "青海", "台湾",
@@ -213,4 +300,5 @@ public class MyFanServiceImpl extends BaseService implements MyFanService {
 
         esTemplate.update(uq);
     }
+
 }
